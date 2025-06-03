@@ -49,16 +49,16 @@ df_filled <- df_clean %>%
     SOG = ifelse(is.na(SOG), round(mean(SOG, na.rm = TRUE), 1), SOG)
   ) %>%
   ungroup() %>%
+  
+  
   # 7. Remplissage global si toujours NA
   mutate(
     CallSign = ifelse(is.na(CallSign) | CallSign == "", "UNKNOWN", CallSign),
-    IMO = ifelse(is.na(IMO), 9999999, IMO),
     Length = ifelse(is.na(Length), round(mean(Length, na.rm = TRUE)), Length),
     Width = ifelse(is.na(Width), round(mean(Width, na.rm = TRUE)), Width),
     Draft = ifelse(is.na(Draft), round(mean(Draft, na.rm = TRUE), 1), Draft),
     VesselType = ifelse(is.na(VesselType), as.numeric(names(sort(table(VesselType), decreasing = TRUE)[1])), VesselType),
     Cargo = ifelse(is.na(Cargo), as.numeric(names(sort(table(Cargo), decreasing = TRUE)[1])), Cargo),
-    Status = ifelse(is.na(Status) | Status == "", "Unknown", Status),
     Heading = ifelse(is.na(Heading), 511, Heading),
     COG = ifelse(is.na(COG), 0, COG),
     SOG = ifelse(is.na(SOG), 0, SOG)

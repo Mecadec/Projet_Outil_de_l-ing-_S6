@@ -1,4 +1,4 @@
-donnees <- read.csv("C:/Users/Paul/Documents/GitHub/Projet_Outil_de_l-ing-_S6/Big Data/Data/vessel-total-clean.csv")
+donnees <- read.csv("")
 
 View(donnees)
 summary(donnees)
@@ -152,57 +152,6 @@ length(unique(donnees$TransceiverClass))
 # Si date manquante on supprime
 # Si longitude latitude qui ne sont pas dans les normes on supprime ou remet en normes si possible
 # Si msi mais pas de nom mettre nom correspondant
-
-
-
-
-
-# 1. Vitesse > 45
-removed_speed <- df %>% filter(SOG > 45)
-df1 <- df %>% filter(SOG <= 45 | is.na(SOG))
-
-# 2. Doublons
-removed_dups <- df1 %>%
-  duplicated(df1[, c("MMSI", "BaseDateTime", "LAT", "LON")]) %>%
-  which() %>%
-  df1[., ]
-df2 <- df1 %>%
-  distinct(MMSI, BaseDateTime, LAT, LON, .keep_all = TRUE)
-
-# 3. Date manquante
-removed_date <- df2 %>% filter(is.na(BaseDateTime))
-df3 <- df2 %>% filter(!is.na(BaseDateTime))
-
-# 4. Coordonnées hors limites
-removed_coords <- df3 %>% filter(is.na(LAT) | is.na(LON) | LAT < -90 | LAT > 90 | LON < -180 | LON > 180)
-df4 <- df3 %>% filter(between(LAT, -90, 90), between(LON, -180, 180))
-
-# 5. Remplir noms
-df_clean <- df4 %>%
-  group_by(MMSI) %>%
-  mutate(VesselName = ifelse(is.na(VesselName) | VesselName == "",
-                             first(na.omit(VesselName)), VesselName)) %>%
-  ungroup()
-
-# Export du résultat
-write.csv(df_clean, "After_Sort.csv", row.names = FALSE)
-
-# Affichage des lignes supprimées
-cat("=== Lignes supprimées pour SOG > 45 ===\n")
-print(removed_speed)
-
-cat("\n=== Doublons supprimés ===\n")
-print(removed_dups)
-
-cat("\n=== Dates manquantes ===\n")
-print(removed_date)
-
-cat("\n=== Coordonnées invalides ===\n")
-print(removed_coords)
-
-
-
-
 
 
 

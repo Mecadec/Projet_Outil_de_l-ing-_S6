@@ -13,7 +13,7 @@ library(leaflet.extras) # Extensions Leaflet (heatmap)
   
 
 # Chargement et préparation des données
-df <- read_csv("C:/Users/Gauth/OneDrive/Documents/GitHub/Projet_Outil_de_l-ing-_S6/Big Data/Data/vessel-total-clean.csv") %>%
+df <- read_csv("C:/Users/Gauth/OneDrive/Documents/GitHub/Projet_Outil_de_l-ing-_S6/Big Data/Data/After_Sort.csv") %>%
   mutate(
     BaseDateTime = suppressWarnings(ymd_hms(BaseDateTime)),  # Conversion date-heure
     VesselName = as.factor(VesselName)                       # Facteur pour les noms de bateaux
