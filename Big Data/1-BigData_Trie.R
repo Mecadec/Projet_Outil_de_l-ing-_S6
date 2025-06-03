@@ -29,7 +29,7 @@ df_clean <- df4 %>%
                              first(na.omit(VesselName)), VesselName)) %>%
   ungroup()
 # Sauvegarde résultat final
-write.csv(df_clean, "After_Sort.csv", row.names = FALSE)
+write.csv(df_clean, "C:/Users/Gauth/OneDrive/Documents/GitHub/Projet_Outil_de_l-ing-_S6/Big Data/Data/After_Sort.csv", row.names = FALSE)
 
 # Optionnel : affichage console
 cat("=== Nettoyage terminé ===\n")
