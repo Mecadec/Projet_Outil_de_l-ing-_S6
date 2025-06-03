@@ -18,18 +18,18 @@ ais_clf <- ais %>%                            # <-- table nettoyée
          Slenderness = Length / Width,            # feature de forme
          BlockCoeff  = Draft / Length)            # proxy portance
 
-# ─── Split 70 / 30
+#Split 70 / 30
 idx   <- createDataPartition(ais_clf$VesselType, p = .7, list = FALSE)
 train <- ais_clf[idx, ]
 test  <- ais_clf[-idx, ]
 
-# ─── Modèle multinomial
+#Modèle multinomial
 fit_mn <- nnet::multinom(
   VesselType ~ Length + Width + Draft + SOG + Slenderness + BlockCoeff,
   data = train, trace = FALSE, maxit = 400
 )
 
-# ─── Prédiction & métriques
+#Prédiction & métriques
 pred  <- predict(fit_mn, newdata = test)
 conf  <- caret::confusionMatrix(pred, test$VesselType)
 
@@ -68,4 +68,65 @@ mae  <- mean(abs(pred2 - test2$SOG))
 cat("\n+++ Tanker Speed Model +++\n",
     "RMSE :", round(rmse, 2), "kn\n",
     "MAE  :", round(mae,  2), "kn\n")
+
+
+if (!requireNamespace("rsample", quietly = TRUE)) {
+  install.packages("rsample", repos = "https://cloud.r-project.org")
+}
+library(rsample)
+
+# ─── Installation automatique si besoin ─────────────────────────────────────
+if (!requireNamespace("randomForest", quietly = TRUE)) {
+  install.packages("randomForest", repos = "https://cloud.r-project.org")
+}
+library(randomForest)
+
+library(tidyverse)
+if (!requireNamespace("yardstick", quietly = TRUE)) {
+  install.packages("yardstick", repos = "https://cloud.r-project.org")
+}
+library(yardstick)     # métriques
+
+# ─── 0. Jeu des tankers + features enrichies
+tank <- ais %>% 
+  filter(VesselType == 80,
+         between(SOG, 0, 25),        # supprime extrêmes
+         !is.na(Length), !is.na(Draft), !is.na(Width)) %>% 
+  mutate(
+    MMSI  = stringr::str_pad(MMSI, 9, pad = "0"),
+    Density  = Draft / Width,
+    Slender  = Length / Width
+  )
+
+# ─── 1. Validation croisée GROUPÉE (MMSI) – 5 plis × 3 répét.
+set.seed(42)
+cv <- group_vfold_cv(
+  data  = tank,
+  group = MMSI,
+  v     = 5,
+  repeats = 3               # 15 estimations distinctes
+)
+
+# ─── 2. Boucle d’entraînement / prédiction
+results <- map_df(cv$splits, function(split) {
+  train <- analysis(split)
+  test  <- assessment(split)
+  
+  rf <- randomForest(
+    SOG ~ Length + Draft + Width + Density + Slender,
+    data = train,
+    ntree = 400
+  )
+  
+  tibble(
+    rmse = rmse_vec(test$SOG, predict(rf, test)),
+    mae  = mae_vec (test$SOG, predict(rf, test))
+  )
+})
+
+# ─── 3. Métriques agrégées
+summary_res <- results %>% summarise(across(everything(), list(mean = mean, sd = sd)))
+
+print(summary_res)
+
 
