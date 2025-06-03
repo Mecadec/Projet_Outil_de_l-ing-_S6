@@ -30,7 +30,8 @@ any(is.na(donnees$IMO)) #--> valeurs manquantes = false
 length(unique(donnees$CallSign))
 table(donnees$CallSign)
 any(is.na(donnees$CallSign)) #--> valeurs manquantes = false
-#--> 151 Call sign
+#--> 151 Call sign --> il y a une erreur car il peu il y avoir que 1 call sign par bateau or avec 
+#le MMSI ou le nom des bateaux il
 
 #→ Le numéro MMSI est le meilleur identifiant pour distinguer les navires, car il est attribué
 #  à tous les bateaux et il est unique à chacun.
@@ -185,7 +186,6 @@ table(donnees$Cargo) #--> certaines valeurs sont à 0, vide ou \\N
 #######################################################################################
 
 length(unique(donnees$TransceiverClass))
-
 
 
 
