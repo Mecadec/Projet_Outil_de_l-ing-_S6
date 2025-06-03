@@ -79,36 +79,32 @@ hist(donnees$Heading, main = "Distribution du cap (heading) des bateaux",
 #Caractéristiques du navire : Type (vessel type - AIS), longueur, largeur,
 #tirant d'eau, type de cargaison (cargo)
 
+
+
+#Type (vessel type - AIS)
+
 length(unique(donnees$VesselType))
 str(donnees$VesselType)
 table(donnees$VesselType)
-freq_sorted <- sort(freq, decreasing = TRUE)
 
-barplot(freq_sorted, 
-        main = "Répartition des types de navires (codes AIS)", 
-        xlab = "Code VesselType", 
-        ylab = "Nombre d'observations", 
-        col = "green", 
-        las = 2)
-
-
-# Regrouper les types en catégories
-donnees$Categorie <- ifelse(donnees$VesselType >= 60 & donnees$VesselType <= 69, "Passenger",
+donnees$categorie <- ifelse(donnees$VesselType >= 60 & donnees$VesselType <= 69, "Passenger",
                      ifelse(donnees$VesselType >= 70 & donnees$VesselType <= 79, "Cargo",
                      ifelse(donnees$VesselType >= 80 & donnees$VesselType <= 89, "Tanker", NA)))
 
-# Créer une table de fréquence par catégorie
-freq_cat <- table(categorie)
+#table de fréquence par catégorie
+frequence_cat <- table(categorie)
 
-# Afficher le barplot
 barplot(freq_cat,
-        main = "Répartition des navires par catégorie (AIS)", 
-        xlab = "Catégorie de navire", 
-        ylab = "Nombre d'observations", 
-        col = c("lightgreen", "khaki", "salmon"))
+        main = "Répartition des navires par catégorie",
+        xlab = "Catégorie de navire",
+        ylab = "Nombre d'observations",
+        col = c("lightgreen", "khaki", "salmon"),
+        ylim = c(0, 200000),
+        las = 1)
 
 
 
+#longueur
 
 str(donnees$Length)  # Pour voir le type --> ne fonctionne pas car en char et non en num
 donnees$Length <- as.numeric(donnees$Length)
@@ -116,11 +112,19 @@ hist(donnees$Length,main = "Distribution de la longueur des bateaux",xlab = "Lon
 col = "green")
 #rien à dire
 
+
+
+#largeur
+
 str(donnees$Width)  # Pour voir le type --> ne fonctionne pas car en chr et non en num
 donnees$Width <- as.numeric(donnees$Width)
 hist(donnees$Width,main = "Distribution de la largeur des bateaux",xlab = "Largeur (en mètres)",
 col = "orange")
 #cohérent avec la longeur
+
+
+
+#tirant d'eau
 
 str(donnees$Draft)
 donnees$Draft <- as.numeric(donnees$Draft)
@@ -128,6 +132,14 @@ hist(donnees$Draft,main = "Distribution du tirant d'eau des bateaux",xlab = "Tir
 col = "blue", breaks = seq(0, 26, by = 1))
 # tirant d'eau de 21m ? --> possible, certains ULCC (Ultra Large Crude Carrier) ont
 #                           un tirant d'eau de 20 à 22m
+
+
+
+#type de cargaison
+
+#######################################################################################
+########################### - Données de navigation - #################################
+#######################################################################################
 
 length(unique(donnees$TransceiverClass))
 
