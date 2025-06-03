@@ -1,4 +1,4 @@
-donnees <- read.csv("")
+donnees <- read.csv("C:/Users/Paul/Documents/GitHub/Projet_Outil_de_l-ing-_S6/Big Data/Data/vessel-total-clean.csv")
 
 View(donnees)
 summary(donnees)
@@ -11,19 +11,25 @@ summary(donnees)
 table(donnees$VesselName)
 #corresponds au nombre d'éléments uniques des vessels name
 length(unique(donnees$VesselName))
+any(is.na(donnees$VesselName)) #--> valeurs manquantes = false
+table(donnees$VesselName)
 #--> 150 noms distincts --> 150 bateaux dans la base de données
+
 
 #idem pour MMSI 
 table(donnees$MMSI)
 length(unique(donnees$MMSI))
+any(is.na(donnees$MMSI)) #--> valeurs manquantes = false
 #--> 150 MMSI distincts --> autant de noms de bateaux que de MMSI --> cohérent
 
 table(donnees$IMO)
 length(unique(donnees$IMO))
+any(is.na(donnees$IMO)) #--> valeurs manquantes = false
 #--> 122 bateaux avec une apellation IMO (n'est pas donnée à tout les bateaux)
 
 length(unique(donnees$CallSign))
 table(donnees$CallSign)
+any(is.na(donnees$CallSign)) #--> valeurs manquantes = false
 #--> 151 Call sign
 
 #→ Le numéro MMSI est le meilleur identifiant pour distinguer les navires, car il est attribué
@@ -34,6 +40,8 @@ table(donnees$CallSign)
 #######################################################################################
 
 #longitude et latitude
+any(is.na(donnees$LAT)) #--> valeurs manquantes = false
+any(is.na(donnees$LON)) #--> valeurs manquantes = false
 
 #######################################################################################
 ########################### - Données de navigation - #################################
@@ -46,9 +54,9 @@ table(donnees$CallSign)
 
 str(donnees$SOG)  #Pour voir le type
 hist(donnees$SOG,main = "Distribution de la vitesse des bateaux", xlab = "Vitesse (SOG) en nœuds",
-col = "blue")
+     col = "blue")
 #vitesse (SOG - speed over ground) --> On Remarque une valeur abérante
-
+any(is.na(donnees$SOG)) #--> valeurs manquantes = false
 
 
 #cap (COG - course over ground)
@@ -59,7 +67,7 @@ hist(donnees$COG, main = "Distribution du cap des bateaux",
      xlab = "Cap (COG) en degrés",
      col = "blue",breaks = seq(0, 360, by = 10))  #barre tous les 10 degrés)
 #--> la proportion de bateau ayant un cap entre 350 et 360 degrés est curieusement très élevé.
-
+any(is.na(donnees$COG)) #--> valeurs manquantes = false
 
 
 #cap (Heading --> la ou pointe le bateau)
@@ -71,6 +79,7 @@ hist(donnees$Heading, main = "Distribution du cap (heading) des bateaux",
      col = "blue",breaks = seq(0, 600, by = 5))  #barre tous les 10 degrés))
 #--> Grosse proportion de bateau ayant un heading incohérent 500+ degré alors que la plage devrait aller
 #    de 1 à 360
+any(is.na(donnees$Heading)) #--> valeurs manquantes = false
 
 
 #######################################################################################
@@ -88,8 +97,8 @@ str(donnees$VesselType)
 table(donnees$VesselType)
 
 donnees$categorie <- ifelse(donnees$VesselType >= 60 & donnees$VesselType <= 69, "Passenger",
-                     ifelse(donnees$VesselType >= 70 & donnees$VesselType <= 79, "Cargo",
-                     ifelse(donnees$VesselType >= 80 & donnees$VesselType <= 89, "Tanker", NA)))
+                            ifelse(donnees$VesselType >= 70 & donnees$VesselType <= 79, "Cargo",
+                                   ifelse(donnees$VesselType >= 80 & donnees$VesselType <= 89, "Tanker", NA)))
 
 #table de fréquence par catégorie
 frequence_cat <- table(categorie)
@@ -102,6 +111,8 @@ barplot(freq_cat,
         ylim = c(0, 200000),
         las = 1)
 
+any(is.na(donnees$VesselType)) #--> valeurs manquantes = false
+
 
 
 #longueur
@@ -109,7 +120,9 @@ barplot(freq_cat,
 str(donnees$Length)  # Pour voir le type --> ne fonctionne pas car en char et non en num
 donnees$Length <- as.numeric(donnees$Length)
 hist(donnees$Length,main = "Distribution de la longueur des bateaux",xlab = "Longueur (en mètres)",
-col = "green")
+     col = "green")
+any(is.na(donnees$Length)) #--> valeurs manquantes = true
+table(donnees$Length) #--> certaines valeurs sont à 0
 #rien à dire
 
 
@@ -119,8 +132,11 @@ col = "green")
 str(donnees$Width)  # Pour voir le type --> ne fonctionne pas car en chr et non en num
 donnees$Width <- as.numeric(donnees$Width)
 hist(donnees$Width,main = "Distribution de la largeur des bateaux",xlab = "Largeur (en mètres)",
-col = "orange")
+     col = "orange")
 #cohérent avec la longeur
+any(is.na(donnees$Width)) #--> valeurs manquantes = true
+table(donnees$Width) #--> certaines valeurs sont à 0
+
 
 
 
@@ -129,29 +145,67 @@ col = "orange")
 str(donnees$Draft)
 donnees$Draft <- as.numeric(donnees$Draft)
 hist(donnees$Draft,main = "Distribution du tirant d'eau des bateaux",xlab = "Tirant d'eau (en mètres)",
-col = "blue", breaks = seq(0, 26, by = 1))
+     col = "blue", breaks = seq(0, 26, by = 1))
 # tirant d'eau de 21m ? --> possible, certains ULCC (Ultra Large Crude Carrier) ont
 #                           un tirant d'eau de 20 à 22m
+
+
+any(is.na(donnees$Draft)) #--> valeurs manquantes = true
+table(donnees$Draft) #--> certaines valeurs sont à 0, vide ou \\N
+
+totale <- length(donnees$Draft)
+totale
+manquantes <- sum(is.na(donnees$Draft))
+manquantes
+données_de_draft_inscrites <- totale - manquantes
+données_de_draft_inscrites
+#Il y a beaucoup de valeurs manquantes sur le renseignement de tiran d'eau
 
 
 
 #type de cargaison
 
+any((donnees$Cargo)) #--> valeurs manquantes = false
+length(unique(donnees$Cargo))
+str(donnees$Cargo)
+table(donnees$Cargo) #--> certaines valeurs sont à 0, vide ou \\N
+
+
+
+
 #######################################################################################
-########################### - Données de navigation - #################################
+#################################### - Statut - #######################################
+#######################################################################################
+
+#État de navigation selon les règles COLREGS
+: Type de transpondeur AIS (A ou B)
+
+#######################################################################################
+############################## - Classe d'équipement - ################################
 #######################################################################################
 
 length(unique(donnees$TransceiverClass))
+
+
+
+
+
+
+
 
 #######################################################################################
 ####################################### - Tri - #######################################
 #######################################################################################
 
-# Si vitesse > 45 kn on supprime
-# Si doublons on supprime
-# Si date manquante on supprime
-# Si longitude latitude qui ne sont pas dans les normes on supprime ou remet en normes si possible
-# Si msi mais pas de nom mettre nom correspondant
+#vitesse
+#doublons --> nom et date
+#longitude latitude qui ne sont pas dans les normes
+#
+
+
+
+
+
 
 
 
