@@ -92,6 +92,21 @@ barplot(freq_sorted,
         las = 2)
 
 
+# Regrouper les types en catégories
+donnees$Categorie <- ifelse(donnees$VesselType >= 60 & donnees$VesselType <= 69, "Passenger",
+                     ifelse(donnees$VesselType >= 70 & donnees$VesselType <= 79, "Cargo",
+                     ifelse(donnees$VesselType >= 80 & donnees$VesselType <= 89, "Tanker", NA)))
+
+# Créer une table de fréquence par catégorie
+freq_cat <- table(categorie)
+
+# Afficher le barplot
+barplot(freq_cat,
+        main = "Répartition des navires par catégorie (AIS)", 
+        xlab = "Catégorie de navire", 
+        ylab = "Nombre d'observations", 
+        col = c("lightgreen", "khaki", "salmon"))
+
 
 
 
@@ -116,7 +131,24 @@ col = "blue", breaks = seq(0, 26, by = 1))
 
 length(unique(donnees$TransceiverClass))
 
+#######################################################################################
+####################################### - Tri - #######################################
+#######################################################################################
 
+#vitesse
+#doublons --> nom et date
+#longitude latitude qui ne sont pas dans les normes
+#
+
+
+
+
+
+
+
+
+
+#######################################################################################
 #id,MMSI,BaseDateTime,LAT,LON,SOG,COG,Heading,VesselName,IMO,CallSign
 #VesselType,Status,Length,Width,Draft,Cargo,TransceiverClass
 
