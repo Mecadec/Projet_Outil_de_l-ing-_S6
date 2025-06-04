@@ -183,3 +183,28 @@ message("+++ RITE NAVIS COMPLETÉ +++\n",
         "Messages bruts    : ", nrow(ais))
 
 
+##############################################################################
+#  Histogramme – vitesse médiane par navire (messages SOG > 0)               #
+##############################################################################
+
+min_msgs <- 1000        # ← change le seuil si tu veux (ex. 30 ou 100)
+
+vessels_speed <- ais %>% 
+  filter(!is.na(SOG), SOG > 0) %>%                     # supprime SOG = 0
+  mutate(MMSI = stringr::str_pad(MMSI, 9, pad = "0")) %>% 
+  group_by(MMSI) %>% 
+  summarise(
+    n_messages = n(),
+    sog_median = median(SOG),                          # vitesse médiane
+    .groups = "drop"
+  )                      # garde les navires
+# assez observés
+
+g_hist_med <- ggplot(vessels_speed, aes(sog_median)) +
+  geom_histogram(bins = 40, fill = "#E85D04") +
+  labs(title = paste0("Vitesse médiane par navire "),
+       x = "Vitesse médiane (nœuds)", y = "Nombre de navires") +
+  theme_minimal()
+
+save_png(g_hist_med, "05b_hist_speed_median_vessel.png")
+
