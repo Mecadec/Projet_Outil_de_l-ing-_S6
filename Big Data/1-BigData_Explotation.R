@@ -17,9 +17,8 @@ table(donnees$VesselName)
 
 
 #idem pour MMSI 
-table(donnees$MMSI)
+table(donnees$MMSI)#il ne manque pas de données
 length(unique(donnees$MMSI))
-any(is.na(donnees$MMSI)) #--> valeurs manquantes = false
 #--> 150 MMSI distincts --> autant de noms de bateaux que de MMSI --> cohérent
 
 table(donnees$IMO)
@@ -33,8 +32,11 @@ any(is.na(donnees$CallSign)) #--> valeurs manquantes = false
 #--> 151 Call sign --> il y a une erreur car il peu il y avoir que 1 call sign par bateau or avec 
 #le MMSI ou le nom des bateaux il
 
-#→ Le numéro MMSI est le meilleur identifiant pour distinguer les navires, car il est attribué
+# ============================================================================================= #
+#                                         # - Conclusion - #
+#  Le numéro MMSI est le meilleur identifiant pour distinguer les navires, car il est attribué
 #  à tous les bateaux et il est unique à chacun.
+# ============================================================================================= #
 
 #######################################################################################
 ################################## - position - #######################################
@@ -42,7 +44,9 @@ any(is.na(donnees$CallSign)) #--> valeurs manquantes = false
 
 #longitude et latitude
 any(is.na(donnees$LAT)) #--> valeurs manquantes = false
+table(donnees$LAT)
 any(is.na(donnees$LON)) #--> valeurs manquantes = false
+table(donnees$LON)
 
 #######################################################################################
 ########################### - Données de navigation - #################################
@@ -64,6 +68,7 @@ any(is.na(donnees$SOG)) #--> valeurs manquantes = false
 
 str(donnees$COG)  #Pour voir le type
 table(donnees$COG)
+tail(table(donnees$COG))
 hist(donnees$COG, main = "Distribution du cap des bateaux", 
      xlab = "Cap (COG) en degrés",
      col = "blue",breaks = seq(0, 360, by = 10))  #barre tous les 10 degrés)
@@ -75,6 +80,7 @@ any(is.na(donnees$COG)) #--> valeurs manquantes = false
 
 str(donnees$Heading)  #Pour voir le type
 table(donnees$Heading)
+tail(table(donnees$Heading))
 hist(donnees$Heading, main = "Distribution du cap (heading) des bateaux", 
      xlab = "Cap (Heading) en degrés",
      col = "blue",breaks = seq(0, 600, by = 5))  #barre tous les 10 degrés))
@@ -84,7 +90,7 @@ any(is.na(donnees$Heading)) #--> valeurs manquantes = false
 
 
 #######################################################################################
-########################### - Données de navigation - #################################
+###################### - Caractéristiques du navire - #################################
 #######################################################################################
 #Caractéristiques du navire : Type (vessel type - AIS), longueur, largeur,
 #tirant d'eau, type de cargaison (cargo)
@@ -98,8 +104,8 @@ str(donnees$VesselType)
 table(donnees$VesselType)
 
 donnees$categorie <- ifelse(donnees$VesselType >= 60 & donnees$VesselType <= 69, "Passenger",
-                            ifelse(donnees$VesselType >= 70 & donnees$VesselType <= 79, "Cargo",
-                                   ifelse(donnees$VesselType >= 80 & donnees$VesselType <= 89, "Tanker", NA)))
+                     ifelse(donnees$VesselType >= 70 & donnees$VesselType <= 79, "Cargo",
+                     ifelse(donnees$VesselType >= 80 & donnees$VesselType <= 89, "Tanker", NA)))
 
 #table de fréquence par catégorie
 frequence_cat <- table(categorie)
@@ -178,14 +184,41 @@ table(donnees$Cargo) #--> certaines valeurs sont à 0, vide ou \\N
 #################################### - Statut - #######################################
 #######################################################################################
 
+table(donnees$Status) #--> certaines valeurs sont à 0, vide ou \\N
+length(donnees$Status)
+
 #État de navigation selon les règles COLREGS
-: Type de transpondeur AIS (A ou B)
+
+#Code et ignification en français
+#0	En marche, propulsé par ses machines
+#1	Au mouillage (ancre jetée)
+#2	Non manœuvrant (panne moteur, avarie, etc.)
+#3	Manœuvrabilité restreinte (travaux sous-marins, câbles, etc.)
+#4	Limité par son tirant d’eau (manœuvre restreinte à cause du fond)
+#5	Amarré (attaché à un quai ou un autre objet)
+#6	Échoué (le navire touche le fond)
+#7	En pêche (activité de pêche en cours, filets, chalut, etc.)
+#8	À la voile (utilise les voiles, sans moteur)
+#9	Réservé pour les navires avec cargaisons dangereuses/polluantes (statut modifié)
+#10	Idem que 9 (réservé pour cargaisons dangereuses/polluantes)
+#11	Navire à moteur remorquant en arrière
+#12	Navire à moteur poussant ou remorquant sur le côté
+#13	Réservé pour un usage futur
+#14	Signal d’urgence actif : AIS-SART (recherche), MOB (homme à la mer), EPIRB (balise de détresse)
+#15	Indéfini / inconnu (valeur par défaut si non renseignée)
+
+
+# Si il n'y a pas de valeur, il faut mettre le bateau en code 15, qui corresponds à
+# Indéfini / inconnu (valeur par défaut si non renseignée)
+
 
 #######################################################################################
 ############################## - Classe d'équipement - ################################
 #######################################################################################
 
+#Type de transpondeur AIS (A ou B)
 length(unique(donnees$TransceiverClass))
+table(donnees$TransceiverClass) #--> certaines valeurs sont à 0, vide ou \\N
 
 
 
