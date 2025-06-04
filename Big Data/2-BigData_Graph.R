@@ -46,20 +46,31 @@ save_png <- function(plot, name, w = 8, h = 5){
 }
 
 ### 2. GRAPHIQUES DEMANDÉS ################################################################
-
-## 2.1 Répartition des bateaux par type  ----
-g_type <- ais |>
-  filter(!is.na(VesselType)) |>
-  count(VesselType, sort = TRUE) |>
-  mutate(VesselType = fct_reorder(VesselType, n)) |>
-  ggplot(aes(VesselType, n)) +
+## 2.1  Répartition des bateaux par méga-type  -------------------------------
+g_type <- ais %>% 
+  filter(!is.na(VesselType)) %>% 
+  mutate(
+    # Convertit en numérique puis classe
+    v_num  = as.numeric(VesselType),
+    MegaType = case_when(
+      between(v_num, 60, 69) ~ "Passenger",
+      between(v_num, 70, 79) ~ "Cargo",
+      between(v_num, 80, 89) ~ "Tanker",
+      TRUE                   ~ "Other"          # sécurité, jamais compté ici
+    )
+  ) %>% 
+  filter(MegaType != "Other") %>%              # garde nos 3 catégories
+  count(MegaType, sort = TRUE) %>% 
+  mutate(MegaType = fct_reorder(MegaType, n)) %>% 
+  ggplot(aes(MegaType, n)) +
   geom_col(fill = "#6A040F") +
   coord_flip() +
-  labs(title = "Répartition des bateaux par type",
-       x = "Type de bateau", y = "Nombre d’enregistrements") +
+  labs(title = "Répartition des bateaux par type (3 classes)",
+       x = "Méga-type", y = "Nombre de navires") +
   theme_minimal()
 
-save_png(g_type, "01_vessel_type_bar.png")
+save_png(g_type, "01_vessel_megatype_bar.png")
+
 
 ## 2.2 Histogramme des vitesses (SOG) ----
 g_sog <- ggplot(ais, aes(SOG)) +
@@ -124,20 +135,29 @@ vessels <- ais %>%
 ##############################################################################
 # 3. GRAPHIQUES « PAR NAVIRE » ----------------------------------------------
 ##############################################################################
-
-## 3.1 Répartition des navires par type
+## 3.1  Répartition des navires par méga-type  -------------------------------
 g_type <- vessels %>% 
   filter(!is.na(VesselType)) %>% 
-  count(VesselType, sort = TRUE) %>% 
-  mutate(VesselType = fct_reorder(VesselType, n)) %>% 
-  ggplot(aes(VesselType, n)) +
+  mutate(
+    v_num    = as.numeric(as.character(VesselType)),   # cast sûr
+    MegaType = case_when(
+      between(v_num, 60, 69) ~ "Passenger",
+      between(v_num, 70, 79) ~ "Cargo",
+      between(v_num, 80, 89) ~ "Tanker",
+      TRUE                   ~ NA_character_           # ignore le reste
+    )
+  ) %>% 
+  drop_na(MegaType) %>% 
+  count(MegaType, sort = TRUE) %>% 
+  mutate(MegaType = fct_reorder(MegaType, n)) %>% 
+  ggplot(aes(MegaType, n)) +
   geom_col(fill = "#6A040F") +
   coord_flip() +
-  labs(title = "Nombre de navires par type",
-       x = "Type de bateau", y = "Nombre de navires") +
+  labs(title = "Nombre de navires par type (Passenger / Cargo / Tanker)",
+       x = "Méga-type", y = "Nombre de navires") +
   theme_minimal()
 
-save_png(g_type, "01b_vessel_type_bar.png")
+save_png(g_type, "01b_vessel_megatype_bar.png")
 
 ## 3.2 Histogramme de la VITESSE médiane par navire
 g_sog <- vessels %>% 
