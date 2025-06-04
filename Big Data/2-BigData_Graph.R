@@ -11,7 +11,7 @@ lapply(needed, library, character.only = TRUE)
 
 ### 1. Import & nettoyage minimal
 ais <- read_delim(
-  file       = "vessel-total-clean.csv",   # <-- chemin vers votre CSV
+  file       = "After_Sort.csv",   # <-- chemin vers votre CSV
   delim      = ",",
   na         = c("\\N", "", "NA"),
   trim_ws    = TRUE,
