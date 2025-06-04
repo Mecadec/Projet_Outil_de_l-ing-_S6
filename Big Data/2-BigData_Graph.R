@@ -98,3 +98,88 @@ save_png(g_tx, "04_transceiver_class_bar.png")
 message("+++ RITE TERMINÉ +++\n",
         "Graphiques écrits dans :  ", file.path(getwd(), "figures"), "\n",
         "Total d’enregistrements : ", nrow(ais))
+
+
+##############################################################################
+# 2. AGRÉGATION « UN BATEAU = UNE LIGNE »  -----------------------------------
+##############################################################################
+mod_stat <- function(x) {        # mode statistique
+  ux <- na.omit(unique(x))
+  ux[which.max(tabulate(match(x, ux)))]
+}
+
+vessels <- ais %>% 
+  mutate(MMSI = stringr::str_pad(MMSI, 9, pad = "0")) %>% 
+  group_by(MMSI) %>% 
+  summarise(
+    VesselType       = mod_stat(VesselType),
+    TransceiverClass = mod_stat(TransceiverClass),
+    Length           = median(Length, na.rm = TRUE),
+    Width            = median(Width , na.rm = TRUE),
+    Draft            = median(Draft, na.rm = TRUE),
+    SOG_median       = median(SOG  , na.rm = TRUE),
+    .groups = "drop"
+  )
+
+##############################################################################
+# 3. GRAPHIQUES « PAR NAVIRE » ----------------------------------------------
+##############################################################################
+
+## 3.1 Répartition des navires par type
+g_type <- vessels %>% 
+  filter(!is.na(VesselType)) %>% 
+  count(VesselType, sort = TRUE) %>% 
+  mutate(VesselType = fct_reorder(VesselType, n)) %>% 
+  ggplot(aes(VesselType, n)) +
+  geom_col(fill = "#6A040F") +
+  coord_flip() +
+  labs(title = "Nombre de navires par type",
+       x = "Type de bateau", y = "Nombre de navires") +
+  theme_minimal()
+
+save_png(g_type, "01b_vessel_type_bar.png")
+
+## 3.2 Histogramme de la VITESSE médiane par navire
+g_sog <- vessels %>% 
+  filter(!is.na(SOG_median), SOG_median >= 0) %>% 
+  ggplot(aes(SOG_median)) +
+  geom_histogram(bins = 40, fill = "#E85D04") +
+  labs(title = "Distribution de la vitesse médiane par navire",
+       x = "Vitesse médiane (nœuds)", y = "Nombre de navires") +
+  theme_minimal()
+
+save_png(g_sog, "02b_hist_sog_vessel.png")
+
+## 3.3 Histogramme du TIRANT d’EAU (Draft) médian par navire
+g_draft <- vessels %>% 
+  filter(!is.na(Draft) & Draft > 0) %>% 
+  ggplot(aes(Draft)) +
+  geom_histogram(bins = 30, fill = "#FFBA08") +
+  labs(title = "Distribution du tirant d’eau médian par navire",
+       x = "Tirant d’eau (m)", y = "Nombre de navires") +
+  theme_minimal()
+
+save_png(g_draft, "03b_hist_draft_vessel.png")
+
+## 3.4 Répartition des classes de transpondeur (par navire)
+g_tx <- vessels %>% 
+  filter(!is.na(TransceiverClass)) %>% 
+  count(TransceiverClass, sort = TRUE) %>% 
+  mutate(TransceiverClass = fct_reorder(TransceiverClass, n)) %>% 
+  ggplot(aes(TransceiverClass, n)) +
+  geom_col(fill = "#9D0208") +
+  labs(title = "Classe de transpondeur – comptage par navire",
+       x = "Classe", y = "Nombre de navires") +
+  theme_minimal()
+
+save_png(g_tx, "04b_transceiver_class_bar.png")
+
+##############################################################################
+# 4. RÉCAPITULATIF -----------------------------------------------------------
+##############################################################################
+message("+++ RITE NAVIS COMPLETÉ +++\n",
+        "Graphiques dans   : ", file.path(getwd(), "figures"), "\n",
+        "Navires distincts : ", nrow(vessels), "\n",
+        "Messages bruts    : ", nrow(ais))
+
+
