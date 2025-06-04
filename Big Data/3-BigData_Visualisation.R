@@ -1,32 +1,25 @@
-library(shiny)         # Interface web interactive (UI + serveur)
-library(tidyverse)     # Manipulation et nettoyage des données (dplyr, readr, tibble...)
-library(leaflet)       # Carte interactive (affichage trajectoires)
-library(lubridate)     # Gestion et conversion des dates (ymd_hms, difftime)
+library(shiny)         # Interface web
+library(tidyverse)     # Manipulation de données
+library(leaflet)       # Carte interactive
+library(lubridate)     # Gestion des dates
 library(leaflet.extras) # Extensions Leaflet (heatmap)
 
-  
-  # shiny -> ui, server, reactive, renderLeaflet, observeEvent
-  # tidyverse -> read_csv, mutate, filter, arrange, bind_rows
-  # leaflet -> leaflet(), addTiles(), leafletProxy(), addPolylines(), addHeatmap(), addLegend()
-  # lubridate -> ymd_hms() pour convertir BaseDateTime, difftime() pour différences temporelles
-  # leaflet.extras -> addHeatmap() dans la carte pour routes fréquentées
-  
-
-# Chargement et préparation des données
+# Chargement des données
 df <- read_csv("C:/Users/Gauth/OneDrive/Documents/GitHub/Projet_Outil_de_l-ing-_S6/Big Data/Data/After_Sort.csv") %>%
   mutate(
-    BaseDateTime = suppressWarnings(ymd_hms(BaseDateTime)),  # Conversion date-heure
-    VesselName = as.factor(VesselName)                       # Facteur pour les noms de bateaux
+    BaseDateTime = suppressWarnings(ymd_hms(BaseDateTime)),
+    VesselName = as.factor(VesselName)
   ) %>%
-  arrange(VesselName, BaseDateTime)                         # Tri par bateau et date
+  arrange(VesselName, BaseDateTime)
 
-# UI avec sélection du bateau et option heatmap
+# Interface utilisateur
 ui <- fluidPage(
   titlePanel("Trajectoires bateaux"),
   sidebarLayout(
     sidebarPanel(
-      selectInput("bateau", "Choisir un bateau :", choices = unique(df$VesselName), selected = NULL),
-      checkboxInput("show_heatmap", "Afficher les routes fréquentées", value = FALSE)
+      selectInput("bateau", "Choisir un bateau :", choices = unique(df$VesselName)),
+      checkboxInput("show_heatmap", "Afficher les routes fréquentées", value = FALSE),
+      tableOutput("infos_bateau")  # Affichage des infos
     ),
     mainPanel(
       leafletOutput("map", height = "700px", width = "100%")
@@ -34,28 +27,38 @@ ui <- fluidPage(
   )
 )
 
-# Serveur Shiny
+# Serveur
 server <- function(input, output, session) {
   
-  # Carte initiale vide avec tuiles OSM
+  # Carte initiale vide
   output$map <- renderLeaflet({
     leaflet() %>% addTiles()
   })
   
-  # Dès qu'un bateau est sélectionné, affichage de sa trajectoire
+  # Infos du bateau sélectionné (clé/valeur, types homogènes)
+  output$infos_bateau <- renderTable({
+    req(input$bateau)
+    
+    df %>%
+      filter(VesselName == input$bateau) %>%
+      select(MMSI, IMO, CallSign, VesselType, Length, Width, Draft, Cargo, TransceiverClass) %>%
+      distinct() %>%
+      mutate(across(everything(), as.character)) %>%
+      pivot_longer(everything(), names_to = "Champ", values_to = "Valeur")
+  }, striped = TRUE, bordered = TRUE, colnames = FALSE)
+  
+  # Affichage trajectoire
   observeEvent(input$bateau, {
     req(input$bateau)
     
-    # Filtrer données du bateau sélectionné et trier
     df_bateau <- df %>%
       filter(VesselName == input$bateau) %>%
       arrange(BaseDateTime) %>%
       mutate(time_diff = as.numeric(difftime(BaseDateTime, lag(BaseDateTime), units = "hours")))
     
-    # Fonction interpolation pour combler les grandes lacunes temporelles (>1h) entre points
     interpolate_points <- function(p1, p2, interval_mins = 15) {
       t_seq <- seq(p1$BaseDateTime, p2$BaseDateTime, by = paste(interval_mins, "mins"))
-      t_seq <- t_seq[-c(1, length(t_seq))] # retirer les bornes
+      t_seq <- t_seq[-c(1, length(t_seq))]
       if (length(t_seq) == 0) return(NULL)
       tibble(
         BaseDateTime = t_seq,
@@ -68,21 +71,19 @@ server <- function(input, output, session) {
     for (i in 2:nrow(df_bateau)) {
       prev <- df_bateau[i - 1, ]
       curr <- df_bateau[i, ]
-      traj_full <- append(traj_full, list(prev)) # Ajouter point précédent
-      if (!is.na(curr$time_diff) && curr$time_diff > 1) { # Si lacune > 1h
+      traj_full <- append(traj_full, list(prev))
+      if (!is.na(curr$time_diff) && curr$time_diff > 1) {
         interp <- interpolate_points(prev, curr)
         if (!is.null(interp)) {
           interp$VesselName <- prev$VesselName
-          traj_full <- append(traj_full, list(interp)) # Ajouter points interpolés
+          traj_full <- append(traj_full, list(interp))
         }
       }
     }
     
-    # Ajouter dernier point et trier la trajectoire complète
     traj_full <- bind_rows(traj_full, df_bateau[nrow(df_bateau), ]) %>%
       arrange(BaseDateTime)
     
-    # Mise à jour de la carte avec la trajectoire
     leafletProxy("map") %>%
       clearShapes() %>%
       clearMarkers() %>%
@@ -103,7 +104,7 @@ server <- function(input, output, session) {
       )
   })
   
-  # Gestion de l'affichage de la heatmap des routes fréquentées
+  # Heatmap
   observe({
     proxy <- leafletProxy("map")
     proxy %>% clearGroup("heatmap") %>% clearControls()
@@ -130,4 +131,5 @@ server <- function(input, output, session) {
   })
 }
 
+# Lancer l'app
 shinyApp(ui, server)
