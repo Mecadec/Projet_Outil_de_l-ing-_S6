@@ -107,20 +107,45 @@ server <- function(input, output, session) {
 
   observe({
     proxy <- leafletProxy("map")
+    proxy %>% clearGroup("heatmap") %>% clearControls()
+
+    if (input$show_heatmap) {
+      proxy %>%
+        addHeatmap(
+          data = df,
+          lng = ~LON,
+          lat = ~LAT,
+          radius = 8,
+          blur = 15,
+          max = 0.05,
+          group = "heatmap"
+        ) %>%
+        addLegend(
+          position = "bottomright",
+          colors = c("blue", "limegreen", "yellow", "orange", "red"),
+          labels = c("Peu fréquenté", "", "", "", "Très fréquenté"),
+          title = "Trafic maritime",
+          opacity = 0.7
+        )
+    }
+  })
+
+  observe({
+    proxy <- leafletProxy("map")
     proxy %>% clearGroup("ports") %>% clearGroup("flux_ports")
-    
+
     if (!input$show_ports) return()
-    
+
     ports_points <- df %>%
       filter(Status == 5) %>%
       select(BaseDateTime, LAT, LON, MMSI, Cargo) %>%
       drop_na(LAT, LON)
-    
-    if (nrow(ports_points) == 0) return()
-    
+
+    if(nrow(ports_points) == 0) return()
+
     clusters <- dbscan(ports_points %>% select(LAT, LON), eps = 0.045, minPts = 1)
     ports_points$cluster <- clusters$cluster
-    
+
     ports_summary <- ports_points %>%
       group_by(cluster) %>%
       summarise(
@@ -131,7 +156,7 @@ server <- function(input, output, session) {
         .groups = "drop"
       ) %>%
       mutate(port_name = paste("Port", cluster))
-    
+
     proxy %>%
       addMarkers(
         data = ports_summary,
@@ -145,8 +170,7 @@ server <- function(input, output, session) {
           "Cargaison fréquente : ", cargaison_freq
         ) %>% lapply(htmltools::HTML)
       )
-    
-    # Calcul du flux entre ports
+
     traj_ports <- ports_points %>%
       arrange(MMSI, BaseDateTime) %>%
       group_by(MMSI) %>%
@@ -154,8 +178,8 @@ server <- function(input, output, session) {
       filter(!is.na(next_cluster) & cluster != next_cluster) %>%
       ungroup() %>%
       count(cluster, next_cluster, sort = TRUE)
-    
-    # Garder seulement le flux sortant principal par port
+
+    # Garder uniquement le flux sortant le plus fort par port
     traj_ports <- traj_ports %>%
       group_by(cluster) %>%
       slice_max(n, n = 1, with_ties = FALSE) %>%
@@ -163,43 +187,19 @@ server <- function(input, output, session) {
       left_join(ports_summary %>% select(cluster, lat1 = lat, lon1 = lon), by = "cluster") %>%
       left_join(ports_summary %>% select(next_cluster = cluster, lat2 = lat, lon2 = lon), by = "next_cluster")
     
-    # Tracer lignes + flèches directionnelles
-    for (i in 1:nrow(traj_ports)) {
-      p1 <- c(traj_ports$lon1[i], traj_ports$lat1[i])
-      p2 <- c(traj_ports$lon2[i], traj_ports$lat2[i])
-      w <- 2
-      
-      # ligne principale
-      proxy %>%
-        addPolylines(
-          lng = c(p1[1], p2[1]),
-          lat = c(p1[2], p2[2]),
-          color = "blue",
-          weight = w,
-          opacity = 0.5,
-          group = "flux_ports"
-        )
-      
-      # flèche triangulaire
-      bearing_angle <- bearing(p1, p2)
-      arrow_len <- 10 # km
-      arrow_base <- destPoint(p2, bearing_angle + 180, arrow_len)
-      left <- destPoint(arrow_base, bearing_angle + 135, arrow_len / 2)
-      right <- destPoint(arrow_base, bearing_angle - 135, arrow_len / 2)
-      
-      proxy %>%
-        addPolygons(
-          lng = c(left[1], p2[1], right[1]),
-          lat = c(left[2], p2[2], right[2]),
-          color = "blue",
-          fillColor = "blue",
-          fillOpacity = 0.9,
-          weight = 1,
-          group = "flux_ports"
-        )
-    }
+
+    proxy %>%
+      addPolylines(
+        data = traj_ports,
+        lng = ~c(lon1, lon2),
+        lat = ~c(lat1, lat2),
+        group = "flux_ports",
+        color = "blue",
+        opacity = 0.3,
+        weight = ~pmin(10, n / 5),
+      )
+    
   })
-  
 
 }
 
