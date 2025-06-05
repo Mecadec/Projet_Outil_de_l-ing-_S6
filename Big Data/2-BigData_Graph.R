@@ -11,7 +11,7 @@ lapply(needed, library, character.only = TRUE)
 
 ### 1. Import & nettoyage minimal
 ais <- read_delim(
-  file       = "After_Sort.csv",   # <-- chemin vers votre CSV
+  file       = "After_Sort_sans_l&w_vide.csv",   # <-- chemin vers votre CSV
   delim      = ",",
   na         = c("\\N", "", "NA"),
   trim_ws    = TRUE,
@@ -210,7 +210,7 @@ message("+++ RITE NAVIS COMPLETÉ +++\n",
 min_msgs <- 1000        # ← change le seuil si tu veux (ex. 30 ou 100)
 
 vessels_speed <- ais %>% 
-  filter(!is.na(SOG), SOG > 0) %>%                     # supprime SOG = 0
+  filter(!is.na(SOG), SOG > 1, SOG < 50) %>%                     # supprime SOG = 0
   mutate(MMSI = stringr::str_pad(MMSI, 9, pad = "0")) %>% 
   group_by(MMSI) %>% 
   summarise(

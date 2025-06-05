@@ -125,3 +125,109 @@ message("+++ RITE III TERMINÉ +++",
         "\nScatter       : 12_scatter_length_sog.png",
         "\nBoxplot       : 13_boxplot_sog_type.png",
         "\nMosaic & chi² : 14_mosaic_vtype_tx.png")
+
+##############################################################################
+# 0. PACKAGES ----------------------------------------------------------------
+##############################################################################
+needed <- c("tidyverse", "caret", "nnet", "broom")
+to_install <- needed[!(needed %in% installed.packages()[,"Package"])]
+if (length(to_install)) install.packages(to_install, repos = "https://cloud.r-project.org")
+lapply(needed, library, character.only = TRUE)
+
+##############################################################################
+# 1. PRÉPARATION DES DONNÉES (NIVEAU MESSAGE) --------------------------------
+##############################################################################
+ais_msg <- ais %>%
+  filter(
+    !is.na(VesselType),
+    !is.na(Length), !is.na(Width), !is.na(Draft),
+    !is.na(SOG),          SOG > 0,  SOG < 50,        # messages « en route »
+    !is.na(LAT), !is.na(LON)
+  ) %>%
+  mutate(
+    # recodage méga-classes
+    vt_num = as.numeric(as.character(VesselType)),
+    VesselType = case_when(
+      between(vt_num, 60, 69) ~ "Passenger",
+      between(vt_num, 70, 79) ~ "Cargo",
+      between(vt_num, 80, 89) ~ "Tanker",
+      TRUE                    ~ NA_character_
+    ),
+    # code Cargo numérique (NA si non numérique)
+    Cargo = ifelse(grepl("^[0-9]+$", Cargo), as.integer(Cargo), NA_integer_)
+  ) %>%
+  drop_na(VesselType, Cargo) %>%     # on ne garde que les lignes complètes
+  mutate(VesselType = factor(VesselType))
+
+##############################################################################
+# 2. SPLIT TRAIN / TEST 70-30 (stratifié sur VesselType) ---------------------
+##############################################################################
+set.seed(42)
+idx <- createDataPartition(ais_msg$VesselType, p = 0.7, list = FALSE)
+train <- ais_msg[idx, ]
+test  <- ais_msg[-idx, ]
+
+##############################################################################
+# 3. MODÈLE MULTINOMIAL ------------------------------------------------------
+#    Prédicteurs : dimensions + vitesse + position + cargo code
+##############################################################################
+fit_mn <- nnet::multinom(
+  VesselType ~ Length + Width + Draft + SOG + LAT + LON + Cargo,
+  data  = train,
+  trace = FALSE,
+  maxit = 400
+)
+
+##############################################################################
+# 4. ÉVALUATION --------------------------------------------------------------
+pred <- predict(fit_mn, newdata = test)
+conf <- caret::confusionMatrix(
+          factor(pred, levels = levels(test$VesselType)),
+          test$VesselType
+        )
+
+print(conf$table)      # matrice de confusion
+print(conf$overall)    # Accuracy, Kappa, etc.
+
+# importance (poids normalisés)
+coef_tbl <- broom::tidy(fit_mn) %>%
+  group_by(y.level) %>%
+  mutate(abs_weight = abs(estimate) / max(abs(estimate))) %>%
+  arrange(y.level, -abs_weight)
+
+print(coef_tbl)
+
+
+##############################################################################
+#  Regrouper les codes 60-69 / 70-79 / 80-89 en trois méga-catégories --------
+##############################################################################
+ais_mod2 <- ais_mod %>%                                   # <-- ton jeu de départ
+  mutate(
+    vt_num = as.numeric(as.character(VesselType)),
+    MegaType = case_when(
+      between(vt_num, 60, 69) ~ "Passenger",
+      between(vt_num, 70, 79) ~ "Cargo",
+      between(vt_num, 80, 89) ~ "Tanker",
+      TRUE                    ~ NA_character_
+    )
+  ) %>% 
+  drop_na(MegaType) %>% 
+  mutate(MegaType = factor(MegaType, levels = c("Passenger", "Cargo", "Tanker")))
+
+##############################################################################
+#  Scatter + régressions LM par méga-type ------------------------------------
+##############################################################################
+g_len_speed_type <- ggplot(ais_mod2, aes(Length, SOG)) +
+  geom_point(alpha = .15, size = .6, colour = "grey65") +
+  geom_smooth(aes(colour = MegaType),
+              method = "lm", se = FALSE,
+              linewidth = 1.6) +
+  scale_colour_brewer(palette = "Dark2") +
+  labs(title = "Vitesse ~ Longueur : régression par méga-type (60-69 / 70-79 / 80-89)",
+       x = "Longueur (m)", y = "SOG (kn)",
+       colour = "Méga-type") +
+  theme_minimal(base_size = 11) +
+  theme(legend.position = "right")
+
+save_png(g_len_speed_type, "12b_scatter_length_sog_byMegaType.png")
+
