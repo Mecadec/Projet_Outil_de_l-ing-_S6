@@ -1,68 +1,54 @@
 library(dplyr)
-library(stringr)
+library(stringr)# Lecture de la bdd :
+df <- read.csv("C:/Users/Gauth/OneDrive/Documents/GitHub/Projet_Outil_de_l-ing-_S6/Big Data/Data/vessel-total-clean.csv",na.strings = c("", "\\N", "NA"))
 
-# Chargement avec toutes les valeurs manquantes reconnues
-df <- read.csv("C:/Users/Gauth/OneDrive/Documents/GitHub/Projet_Outil_de_l-ing-_S6/Big Data/Data/vessel-total-clean.csv",
-               na.strings = c("", "\\N", "NA"))
+#On supprime les doublons.
+doublons <- duplicated(df[, c("MMSI", "BaseDateTime")])
+df_sans_doublons <- df[!doublons, ]
 
-# 1. Vitesse > 45
-removed_speed <- df %>% filter(SOG > 45)
-df1 <- df %>% filter(SOG <= 45 | is.na(SOG))
 
-# 2. Doublons
-dup_idx <- duplicated(df1[, c("MMSI", "BaseDateTime", "LAT", "LON")])
-removed_dups <- df1[dup_idx, ]
-df2 <- df1[!dup_idx, ]
+# ===================================== Supprimer toute la ligne si valeur manquante ===================================== 
+#  MMSI, LAT, LON, SOG, BaseDateTime
+df_sans_val_maquantes <- df_sans_doublons %>% filter((!is.na(MMSI))) %>% filter((!is.na(LAT))) %>% filter((!is.na(LON))) %>% filter((!is.na(BaseDateTime))) 
 
-# 3. Dates manquantes
-removed_date <- df2 %>% filter(is.na(BaseDateTime))
-df3 <- df2 %>% filter(!is.na(BaseDateTime))
+#  %>% est un equivalent à un select()
+# Ces informations sont cruciales. Sans l’une de ces informations, la donnée est inexploitable. On supprime la ligne.
 
-# 4. Coordonnées invalides
-removed_coords <- df3 %>% filter(is.na(LAT) | is.na(LON) | LAT < -90 | LAT > 90 | LON < -180 | LON > 180)
-df4 <- df3 %>% filter(between(LAT, -90, 90), between(LON, -180, 180))
+# ===================================== Supprimer toute la ligne si valeur aberrante =====================================
+#  Si la vitesse est supérieure à 40 nœuds, on la considère comme aberrante.
+df_sans_SOG_Ab <- df_sans_val_maquantes %>% filter(SOG <= 40)
 
-# 5. Complétion VesselName
-df_clean <- df4 %>%
-  group_by(MMSI) %>%
-  mutate(
-    VesselName = ifelse(is.na(VesselName) | VesselName == "", first(na.omit(VesselName)), VesselName)
-  ) %>%
-  ungroup()
+#  Si LON et LAT hors Golf du Mexique
+df_coo_golf_Mex <- df_sans_SOG_Ab %>% filter(LAT >= 20 & LAT <= 40) %>% filter(LON >= -110 & LON <= -70) # Revoir avec la carte
 
-# 6. Remplissage cohérent par groupe
-df_filled <- df_clean %>%
-  group_by(MMSI) %>%
-  mutate(
-    CallSign = ifelse(is.na(CallSign) | CallSign == "", first(na.omit(CallSign)), CallSign),
-    IMO = ifelse(is.na(IMO), first(na.omit(IMO)), IMO),
-    
-    Length = ifelse(is.na(Length), as.numeric(names(sort(table(Length), decreasing = TRUE)[1])), Length),
-    Width = ifelse(is.na(Width), as.numeric(names(sort(table(Width), decreasing = TRUE)[1])), Width),
-    Draft = ifelse(is.na(Draft), as.numeric(names(sort(table(Draft), decreasing = TRUE)[1])), Draft),
-    VesselType = ifelse(is.na(VesselType), as.numeric(names(sort(table(VesselType), decreasing = TRUE)[1])), VesselType),
-    Cargo = ifelse(is.na(Cargo), as.numeric(names(sort(table(Cargo), decreasing = TRUE)[1])), Cargo),
-    
-    Status = ifelse(is.na(Status) | Status == "", first(na.omit(Status)), Status),
-    Heading = ifelse(is.na(Heading), round(mean(Heading, na.rm = TRUE)), Heading),
-  ) %>%
-  ungroup() %>%
-  
-  
-  # 7. Remplissage global si toujours NA
-  mutate(
-    CallSign = ifelse(is.na(CallSign) | CallSign == "", "UNKNOWN", CallSign),
-    VesselType = ifelse(is.na(VesselType), as.numeric(names(sort(table(VesselType), decreasing = TRUE)[1])), VesselType),
-    Cargo = ifelse(is.na(Cargo), as.numeric(names(sort(table(Cargo), decreasing = TRUE)[1])), Cargo),
-    Heading = ifelse(is.na(Heading), 511, Heading),
-    COG = ifelse(is.na(COG), 0, COG),
-    SOG = ifelse(is.na(SOG), 0, SOG)
-  )
+# ===================================== Supprimer uniquement la valeur: (la remplacer par NA) ===================================== 
+#  COG: la plage de valeur est de 0 à 359,9°. Si la valeur est de 360° ou plus, on la supprime.
+#  Heading: la plage de valeur est de 0 à 359. Si la valeur est de 360° ou plus, on la supprime.
 
-# 8. Export final
-write.csv(df_filled, "C:/Users/Gauth/OneDrive/Documents/GitHub/Projet_Outil_de_l-ing-_S6/Big Data/Data/After_Sort.csv", row.names = FALSE)
+df_valeur_NA <- df_coo_golf_Mex %>% mutate(COG = ifelse(COG >= 360, NA, COG)) %>% mutate(Heading = ifelse(Heading >= 360, NA, Heading))
 
-# Résumé
-cat("=== Nettoyage terminé ===\n")
+# ===================================== Remplacer si valeur manquante =====================================  
+#  Status: Si il n'y a pas de valeur, il faut mettre le bateau en code 15, qui corresponds à Indéfini / inconnu: valeur par défaut si non renseignée
+
+df_fin <- df_valeur_NA %>% mutate(Status = ifelse(is.na(Status),15,Status))
+
+
+# ===================================== Export final =====================================  
+write.csv(df_fin, "C:/Users/Gauth/OneDrive/Documents/GitHub/Projet_Outil_de_l-ing-_S6/Big Data/Data/After_Sort.csv", row.names = FALSE)
+
+# ===================================== Export final sans val manquante length et width =====================================
+df_fin_sans_lenght_width_vide <- df_sans_doublons %>% filter((!is.na(Length))) %>% filter((!is.na(Width)))
+write.csv(df_fin_sans_lenght_width_vide, "C:/Users/Gauth/OneDrive/Documents/GitHub/Projet_Outil_de_l-ing-_S6/Big Data/Data/After_Sort_sans_l&w_vide.csv", row.names = FALSE)
+
+
+
 cat("Lignes initiales :", nrow(df), "\n")
-cat("Lignes finales :", nrow(df_filled), "\n")
+cat("Bateaux initiales :", length(unique(df$MMSI)),"\n")
+cat("=== Nettoyage terminé ===\n")
+cat("Lignes enlever :", nrow(df)-nrow(df_fin), "\n")
+cat("Lignes finales :", nrow(df_fin), "\n")
+cat("Bateaux restant :", length(unique(df_fin$MMSI)),"\n")
+cat("=== Nettoyage Sans les valeurs nulles de la length et width ===\n")
+cat("Lignes enlever :", nrow(df)-nrow(df_fin_sans_lenght_width_vide), "\n")
+cat("Lignes finales :", nrow(df_fin_sans_lenght_width_vide), "\n")
+cat("Bateaux restant :", length(unique(df_fin_sans_lenght_width_vide$MMSI)),"\n")
