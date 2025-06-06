@@ -20,12 +20,13 @@ ui <- fluidPage(
   sidebarLayout(
     sidebarPanel(
       selectInput("bateau", "Choisir un bateau :", choices = unique(df$VesselName)),
-      checkboxInput("show_heatmap", "Afficher les routes fréquentées", value = FALSE),
-      checkboxInput("show_ports", "Afficher les ports détectés", value = TRUE),
+      checkboxInput("show_heatmap", "Afficher les routes fréquentées", value = TRUE),
+      checkboxInput("show_ports", "Afficher les ports détectés", value = FALSE),
+      checkboxInput("show_links", "Afficher les liens entres les ports", value = FALSE),
       tableOutput("infos_bateau")
     ),
     mainPanel(
-      leafletOutput("map", height = "600px", width = "100%")
+      leafletOutput("map", height = "1100px", width = "100%")
     )
   )
 )
@@ -170,7 +171,9 @@ server <- function(input, output, session) {
           "Cargaison fréquente : ", cargaison_freq
         ) %>% lapply(htmltools::HTML)
       )
-
+    
+    if (!input$show_links) return()
+    
     traj_ports <- ports_points %>%
       arrange(MMSI, BaseDateTime) %>%
       group_by(MMSI) %>%
