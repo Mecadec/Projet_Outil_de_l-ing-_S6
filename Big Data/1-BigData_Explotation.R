@@ -170,7 +170,6 @@ données_de_draft_inscrites
 
 #type de cargaison
 
-any((donnees$Cargo)) #--> valeurs manquantes = false
 length(unique(donnees$Cargo))
 str(donnees$Cargo)
 table(donnees$Cargo) #--> certaines valeurs sont à 0, vide ou \\N
@@ -187,7 +186,7 @@ length(donnees$Status)
 
 #État de navigation selon les règles COLREGS
 
-#Code et ignification en français
+#Code et signification en français
 #0	En marche, propulsé par ses machines
 #1	Au mouillage (ancre jetée)
 #2	Non manœuvrant (panne moteur, avarie, etc.)
@@ -246,5 +245,6 @@ table(donnees$TransceiverClass) #--> certaines valeurs sont à 0, vide ou \\N
 #VesselType,Status,Length,Width,Draft,Cargo,TransceiverClass
 
 #univarié --> longeur-vitesse, etc pour chaque variable numérique
-#variables textuelles --> nom du bateau --> nombre de valeurs différentes --> ça veu dire 15000 bateau
+#variables textuelles --> nom du bateau --> nombre de valeurs différentes --> ça veu dire 150 bateau
 #bivarié --> partie régression logistique --> qui dépends de quoi
+
