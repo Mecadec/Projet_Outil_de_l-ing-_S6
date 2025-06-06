@@ -39,14 +39,17 @@ any(is.na(donnees$CallSign)) #--> valeurs manquantes = false
 # ============================================================================================= #
 
 #######################################################################################
-################################## - position - #######################################
+########################### - position et horodatage - ###############################
 #######################################################################################
+#longitude, latitude et horodatage.
 
-#longitude et latitude
 any(is.na(donnees$LAT)) #--> valeurs manquantes = false
 table(donnees$LAT)
 any(is.na(donnees$LON)) #--> valeurs manquantes = false
 table(donnees$LON)
+
+head(table(donnees$BaseDateTime))
+tail(table(donnees$BaseDateTime))
 
 #######################################################################################
 ########################### - Données de navigation - #################################
@@ -57,6 +60,7 @@ table(donnees$LON)
 
 #vitesse (SOG - speed over ground)
 
+tail(table(donnees$SOG))
 str(donnees$SOG)  #Pour voir le type
 hist(donnees$SOG,main = "Distribution de la vitesse des bateaux", xlab = "Vitesse (SOG) en nœuds",
      col = "blue")
@@ -87,7 +91,7 @@ hist(donnees$Heading, main = "Distribution du cap (heading) des bateaux",
 #--> Grosse proportion de bateau ayant un heading incohérent 500+ degré alors que la plage devrait aller
 #    de 1 à 360
 any(is.na(donnees$Heading)) #--> valeurs manquantes = false
-
+tail(table(donnees$Heading))
 
 #######################################################################################
 ###################### - Caractéristiques du navire - #################################
@@ -96,33 +100,29 @@ any(is.na(donnees$Heading)) #--> valeurs manquantes = false
 #tirant d'eau, type de cargaison (cargo)
 
 
-
 #Type (vessel type - AIS)
-
 length(unique(donnees$VesselType))
 str(donnees$VesselType)
 table(donnees$VesselType)
-
 donnees$categorie <- ifelse(donnees$VesselType >= 60 & donnees$VesselType <= 69, "Passenger",
-                     ifelse(donnees$VesselType >= 70 & donnees$VesselType <= 79, "Cargo",
-                     ifelse(donnees$VesselType >= 80 & donnees$VesselType <= 89, "Tanker", NA)))
+                            ifelse(donnees$VesselType >= 70 & donnees$VesselType <= 79, "Cargo",
+                                   ifelse(donnees$VesselType >= 80 & donnees$VesselType <= 89, "Tanker", NA)))
 
-#table de fréquence par catégorie
-frequence_cat <- table(categorie)
+bateaux_uniques <- donnees[!duplicated(donnees$MMSI),] #duplicated renvoie true si c'est déjà apparu
+#! inverse true et false
+frequence_cat <- table(bateaux_uniques$categorie)
 
-barplot(freq_cat,
-        main = "Répartition des navires par catégorie",
+barplot(frequence_cat,
+        main = "Répartition des navires par catégorie (bateaux uniques)",
         xlab = "Catégorie de navire",
-        ylab = "Nombre d'observations",
+        ylab = "Nombre de bateaux uniques",
         col = c("lightgreen", "khaki", "salmon"),
-        ylim = c(0, 200000),
+        ylim = c(0, max(frequence_cat) * 1.2), # Ajustement automatique de l'échelle
         las = 1)
-
-any(is.na(donnees$VesselType)) #--> valeurs manquantes = false
-
 
 
 #longueur
+
 
 str(donnees$Length)  # Pour voir le type --> ne fonctionne pas car en char et non en num
 donnees$Length <- as.numeric(donnees$Length)
@@ -131,7 +131,6 @@ hist(donnees$Length,main = "Distribution de la longueur des bateaux",xlab = "Lon
 any(is.na(donnees$Length)) #--> valeurs manquantes = true
 table(donnees$Length) #--> certaines valeurs sont à 0
 #rien à dire
-
 
 
 #largeur
@@ -143,7 +142,6 @@ hist(donnees$Width,main = "Distribution de la largeur des bateaux",xlab = "Large
 #cohérent avec la longeur
 any(is.na(donnees$Width)) #--> valeurs manquantes = true
 table(donnees$Width) #--> certaines valeurs sont à 0
-
 
 
 
