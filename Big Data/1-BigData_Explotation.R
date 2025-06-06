@@ -1,5 +1,5 @@
 donnees <- read.csv("C:/Users/Paul/Documents/GitHub/Projet_Outil_de_l-ing-_S6/Big Data/Data/vessel-total-clean.csv")
-
+donnees <- read.csv("C:/Users/Paul/Documents/GitHub/Projet_Outil_de_l-ing-_S6/Big Data/Data/After_Sort.csv")
 View(donnees)
 summary(donnees)
 
@@ -23,7 +23,6 @@ length(unique(donnees$MMSI))
 
 table(donnees$IMO)
 length(unique(donnees$IMO))
-any(is.na(donnees$IMO)) #--> valeurs manquantes = false
 #--> 122 bateaux avec une apellation IMO (n'est pas donnée à tout les bateaux)
 
 length(unique(donnees$CallSign))
@@ -59,11 +58,11 @@ tail(table(donnees$BaseDateTime))
 
 
 #vitesse (SOG - speed over ground)
-
+head(table(donnees$SOG))
 tail(table(donnees$SOG))
 str(donnees$SOG)  #Pour voir le type
-hist(donnees$SOG,main = "Distribution de la vitesse des bateaux", xlab = "Vitesse (SOG) en nœuds",
-     col = "blue")
+hist(donnees$SOG,main = "", xlab = "Vitesse (SOG) en nœuds",
+     col = "blue",breaks = seq(0, 120, by = 5))
 #vitesse (SOG - speed over ground) --> On Remarque une valeur abérante
 any(is.na(donnees$SOG)) #--> valeurs manquantes = false
 
@@ -126,10 +125,12 @@ barplot(frequence_cat,
 
 str(donnees$Length)  # Pour voir le type --> ne fonctionne pas car en char et non en num
 donnees$Length <- as.numeric(donnees$Length)
-hist(donnees$Length,main = "Distribution de la longueur des bateaux",xlab = "Longueur (en mètres)",
+hist(donnees$Length,main = "Distribution de la longueur par signal envoyé",xlab = "Longueur (en mètres)",
      col = "green")
 any(is.na(donnees$Length)) #--> valeurs manquantes = true
 table(donnees$Length) #--> certaines valeurs sont à 0
+head(table(donnees$Length))
+tail(table(donnees$Length))
 #rien à dire
 
 
@@ -137,12 +138,13 @@ table(donnees$Length) #--> certaines valeurs sont à 0
 
 str(donnees$Width)  # Pour voir le type --> ne fonctionne pas car en chr et non en num
 donnees$Width <- as.numeric(donnees$Width)
-hist(donnees$Width,main = "Distribution de la largeur des bateaux",xlab = "Largeur (en mètres)",
+hist(donnees$Width,main = "Distribution de la largeur signal envoyé",xlab = "Largeur (en mètres)",
      col = "orange")
 #cohérent avec la longeur
 any(is.na(donnees$Width)) #--> valeurs manquantes = true
 table(donnees$Width) #--> certaines valeurs sont à 0
-
+head(table(donnees$Width))
+tail(table(donnees$Width))
 
 
 #tirant d'eau
