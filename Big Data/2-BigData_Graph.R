@@ -1,7 +1,3 @@
-##############################################################################
-#  FONCTIONNALITÉ 2 — VISUALISATION DES DONNÉES SUR DES GRAPHIQUES          #
-#             A3 Big-Data – AIS Gulf of Mexico – 2025                       #
-##############################################################################
 
 ### 0. Librairies (à installer la 1re fois)
 needed <- c("tidyverse", "scales")
@@ -45,7 +41,7 @@ save_png <- function(plot, name, w = 8, h = 5){
   ggsave(file.path("figures", name), plot, width = w, height = h, dpi = 300)
 }
 
-### 2. GRAPHIQUES DEMANDÉS ################################################################
+
 ## 2.1  Répartition des bateaux par méga-type  -------------------------------
 g_type <- ais %>% 
   filter(!is.na(VesselType)) %>% 
@@ -111,9 +107,6 @@ message("+++ RITE TERMINÉ +++\n",
         "Total d’enregistrements : ", nrow(ais))
 
 
-##############################################################################
-# 2. AGRÉGATION « UN BATEAU = UNE LIGNE »  -----------------------------------
-##############################################################################
 mod_stat <- function(x) {        # mode statistique
   ux <- na.omit(unique(x))
   ux[which.max(tabulate(match(x, ux)))]
@@ -132,9 +125,6 @@ vessels <- ais %>%
     .groups = "drop"
   )
 
-##############################################################################
-# 3. GRAPHIQUES « PAR NAVIRE » ----------------------------------------------
-##############################################################################
 ## 3.1  Répartition des navires par méga-type  -------------------------------
 g_type <- vessels %>% 
   filter(!is.na(VesselType)) %>% 
@@ -194,18 +184,12 @@ g_tx <- vessels %>%
 
 save_png(g_tx, "04b_transceiver_class_bar.png")
 
-##############################################################################
-# 4. RÉCAPITULATIF -----------------------------------------------------------
-##############################################################################
-message("+++ RITE NAVIS COMPLETÉ +++\n",
+
+message("+++ FIN +++\n",
         "Graphiques dans   : ", file.path(getwd(), "figures"), "\n",
         "Navires distincts : ", nrow(vessels), "\n",
         "Messages bruts    : ", nrow(ais))
 
-
-##############################################################################
-#  Histogramme – vitesse médiane par navire (messages SOG > 0)               #
-##############################################################################
 
 min_msgs <- 1000        # ← change le seuil si tu veux (ex. 30 ou 100)
 
@@ -228,3 +212,63 @@ g_hist_med <- ggplot(vessels_speed, aes(sog_median)) +
 
 save_png(g_hist_med, "05b_hist_speed_median_vessel.png")
 
+# - liste de ports
+ports_geo <- tibble::tribble(
+  ~port,            ~lat,     ~lon,
+  "Houston",        29.7499, -95.3584,
+  "Corpus Christi", 27.8128, -97.4072,
+  "South Louisiana",30.0500, -90.5000,
+  "New Orleans",    29.9445, -90.0618,
+  "Tampa Bay",      27.9499, -82.4453,
+  "Mobile",         30.7122, -88.0433,
+  "Beaumont",       30.0683, -94.0844,
+  "Port Arthur",    29.8683, -93.8900,
+  "Veracruz",       19.1903, -96.1533,
+  "Altamira",       22.3910, -97.9250
+)
+
+library(tidyverse)
+library(geosphere)        # distHaversine()
+
+# ­── A. associer chaque LON/LAT au port le plus proche  --------------------
+ais_port <- ais %>%
+  filter(!is.na(LAT), !is.na(LON)) %>%
+  rowwise() %>%
+  mutate(
+    # index du port le plus proche
+    port_idx  = which.min(
+      distHaversine(
+        c(LON, LAT),
+        ports_geo[, c("lon", "lat")]
+      )
+    ),
+    dist_km   = distHaversine(
+      c(LON, LAT),
+      ports_geo[port_idx, c("lon", "lat")]
+    ) / 1000,
+    port_name = ifelse(dist_km <= 15,
+                       ports_geo$port[port_idx],
+                       NA_character_)
+  ) %>%
+  ungroup()
+
+# ­── B. Top N ports (messages à ≤ 15 km) -----------------------------------
+topN <- 10
+ports <- ais_port %>%
+  filter(!is.na(port_name)) %>%
+  count(port_name, sort = TRUE) %>%
+  slice_head(n = topN)
+
+print(ports)
+
+# ­── C. Bar-plot -----------------------------------------------------------
+g_ports <- ggplot(ports,
+                  aes(fct_reorder(port_name, n), n)) +
+  geom_col(fill = "#6A040F") +
+  coord_flip() +
+  scale_y_continuous(labels = scales::comma_format(big.mark = " ")) +
+  labs(title = paste("Top", topN, "ports (messages ≤ 15 km)"),
+       x = "Port", y = "Nombre de messages AIS") +
+  theme_minimal()
+
+save_png(g_ports, "08_top_ports_barplot.png")
