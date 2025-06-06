@@ -1,15 +1,11 @@
-##############################################################################
-# INSTALL & LOAD – tidyverse + ggcorrplot + vcd pour mosaicplots
-##############################################################################
+
 libs <- c("tidyverse", "ggcorrplot", "vcd")
 to_install <- libs[!(libs %in% installed.packages()[,"Package"])]
 if(length(to_install)) install.packages(to_install, repos = "https://cloud.r-project.org")
 lapply(libs, library, character.only = TRUE)
 
-options(scipen = 999)        # adieu notation scientifique
-##############################################################################
-# CORRELATION MATRIX – Heat-map
-##############################################################################
+options(scipen = 999)       
+
 num_vars <- ais %>% 
   select(where(is.numeric)) %>%        # ne garde que numériques
   select(-LAT, -LON)                  # option : retirer coords pures
@@ -93,9 +89,8 @@ g_len_speed_type <- ggplot(ais_mod, aes(Length, SOG)) +
   theme(legend.position = "right")
 
 save_png(g_len_speed_type, "12b_scatter_length_sog_byType.png")
-##############################################################################
+
 #  CROSS-TAB  &  CHI-SQUARE TEST  &  MOSAICPLOT
-##############################################################################
 tbl_vtype_tx <- ais %>% 
   filter(!is.na(VesselType), !is.na(TransceiverClass)) %>% 
   count(VesselType, TransceiverClass) %>% 
@@ -126,17 +121,7 @@ message("+++ RITE III TERMINÉ +++",
         "\nBoxplot       : 13_boxplot_sog_type.png",
         "\nMosaic & chi² : 14_mosaic_vtype_tx.png")
 
-##############################################################################
-# 0. PACKAGES ----------------------------------------------------------------
-##############################################################################
-needed <- c("tidyverse", "caret", "nnet", "broom")
-to_install <- needed[!(needed %in% installed.packages()[,"Package"])]
-if (length(to_install)) install.packages(to_install, repos = "https://cloud.r-project.org")
-lapply(needed, library, character.only = TRUE)
 
-##############################################################################
-# 1. PRÉPARATION DES DONNÉES (NIVEAU MESSAGE) --------------------------------
-##############################################################################
 ais_msg <- ais %>%
   filter(
     !is.na(VesselType),
@@ -230,4 +215,26 @@ g_len_speed_type <- ggplot(ais_mod2, aes(Length, SOG)) +
   theme(legend.position = "right")
 
 save_png(g_len_speed_type, "12b_scatter_length_sog_byMegaType.png")
+
+
+cargo <- ais %>% 
+  filter(between(as.numeric(VesselType), 70, 79)) %>%   # cast temporaire
+  select(where(is.numeric)) %>% 
+  select(-MMSI, -LAT, -LON)
+
+# 2. Matrice de corrélation (Pearson)
+corr_cargo <- cor(cargo, use = "pairwise.complete.obs")
+
+# 3. Visualisation
+g_corr_cargo <- ggcorrplot(
+  corr_cargo,
+  type    = "lower",
+  lab     = TRUE,
+  tl.cex  = 8,
+  lab_size = 3,
+  ggtheme = ggplot2::theme_minimal()
+) +
+  ggtitle("Matrice de corrélation – Navires Cargo (70-79)")
+
+save_png(g_corr_cargo, "15_corr_matrix_cargo.png")
 
