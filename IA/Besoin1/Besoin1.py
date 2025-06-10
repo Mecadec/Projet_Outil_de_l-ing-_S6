@@ -5,15 +5,13 @@ from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bo
 import plotly.express as px
 import joblib
 
+
 # Charger les données
-df = pd.read_csv('After_Sort_sans_l&w_vide.csv')
+df = pd.read_csv('Besoin1/After_Sort_sans_l&w_vide.csv')
 
 # Sélection des colonnes pertinentes
 colonnes = ['LAT', 'LON', 'SOG', 'COG', 'Heading', 'VesselType']
 df = df[colonnes]
-
-# Gestion des valeurs manquantes
-df = df.dropna()
 
 # Encodage de la variable catégorielle 'VesselType' si elle est utilisée
 if 'VesselType' in df.columns:
@@ -42,7 +40,7 @@ else:
     X_sample = X
     df_sample_cluster = df.copy()
 
-n_clusters = 4
+n_clusters = 4  # Choix optimal basé sur les courbes de métriques
 kmeans = KMeans(n_clusters=n_clusters, random_state=42)
 labels = kmeans.fit_predict(X_sample)
 
@@ -79,8 +77,8 @@ except Exception as e:
     print("Erreur lors de la visualisation Plotly :", e)
 
 # Sauvegarde du modèle et du scaler
-joblib.dump(kmeans, "kmeans_model.joblib")
-joblib.dump(scaler, "scaler_model.joblib")
+joblib.dump(kmeans, "Besoin1/kmeans_model.joblib")
+joblib.dump(scaler, "Besoin1/scaler_model.joblib")
 print("\nModèle et scaler sauvegardés.")
 
 # Script pour prédire le cluster d'un nouveau navire
@@ -89,8 +87,8 @@ def predict_cluster(new_data_dict):
     new_data_dict : dict avec les clés ['LAT', 'LON', 'SOG', 'COG', 'Heading', 'VesselType']
     """
     # Charger scaler et modèle
-    scaler = joblib.load("scaler_model.joblib")
-    kmeans = joblib.load("kmeans_model.joblib")
+    scaler = joblib.load("Besoin1/scaler_model.joblib")
+    kmeans = joblib.load("Besoin1/kmeans_model.joblib")
     # Transformer les données en DataFrame
     new_df = pd.DataFrame([new_data_dict])
     # Encoder VesselType si besoin
@@ -117,48 +115,5 @@ df['cluster'] = kmeans.predict(X)
 print("\nRépartition des clusters sur toute la base :")
 print(df['cluster'].value_counts())
 
-# (Optionnel) Sauvegarder le DataFrame avec les clusters
-df.to_csv("After_Sort_sans_l&w_vide_clusters.csv", index=False)
-print("Fichier CSV avec clusters sauvegardé sous 'After_Sort_sans_l&w_vide_clusters.csv'.")
-
-# 1. Préparation des données
-# - Extraction des colonnes pertinentes : ['LAT', 'LON', 'SOG', 'COG', 'Heading', 'VesselType']
-# - Encodage de 'VesselType' (catégorielle) en numérique avec LabelEncoder
-# - Normalisation des données avec StandardScaler
-
-# 2. Apprentissage non supervisé
-# - Choix de l'algorithme : KMeans (classique, adapté à ce type de données)
-# - Justification : KMeans regroupe les navires selon la proximité dans l'espace des variables normalisées (schémas de navigation similaires)
-# - Détermination du nombre de clusters : paramètre n_clusters, à ajuster selon les résultats des métriques
-
-# 3. Métriques pour apprentissage non supervisé
-# - Silhouette Score : mesure la cohésion et la séparation des clusters
-# - Calinski-Harabasz Index : rapport entre la dispersion inter-cluster et intra-cluster
-# - Davies-Bouldin Index : plus il est faible, mieux c'est (clusters bien séparés)
-# - Affichage des scores pour discussion et choix du meilleur modèle
-
-# 4. Visualisation sur carte
-# - Utilisation de plotly.express.scatter_mapbox pour afficher les navires sur une carte
-# - Couleur différente pour chaque cluster
-# - Affichage d'un échantillon pour la performance
-
-# 5. Préparation d'un script Python
-# - Fonction predict_cluster pour prédire le cluster d'un nouveau navire à partir de ses caractéristiques
-# - Le modèle et le scaler sont sauvegardés et rechargés, pas de recalcul des clusters à chaque appel
-
-# 6. Application du modèle à toute la base et sauvegarde
-# - Prédiction du cluster pour chaque navire de la base complète
-# - Sauvegarde du résultat dans un nouveau CSV
-
-# 7. Justification des choix (à compléter dans le rapport écrit)
-# - Variables : choix basé sur la pertinence pour décrire la navigation (position, vitesse, direction, type)
-# - Modèle : KMeans pour sa simplicité et son efficacité sur des données normalisées
-# - Métriques : standard pour évaluer la qualité du clustering non supervisé
-
-# 8. Discussion des résultats (à compléter dans le rapport écrit)
-# - Interpréter les scores et la répartition des clusters
-# - Visualiser les comportements typiques ou les anomalies sur la carte
-
-# Analyse des clusters : description des caractéristiques moyennes de chaque cluster
 print("\nCaractéristiques moyennes par cluster (sur toute la base) :")
 print(df.groupby('cluster')[['LAT', 'LON', 'SOG', 'COG', 'Heading', 'VesselType']].mean())
