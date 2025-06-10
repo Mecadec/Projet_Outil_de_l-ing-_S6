@@ -105,7 +105,60 @@ def predict_cluster(new_data_dict):
     return cluster[0]
 
 # Exemple d'utilisation :
-# exemple_navire = {'LAT': 29.0, 'LON': -89.0, 'SOG': 10.0, 'COG': 200.0, 'Heading': 200, 'VesselType': 60}
-# print("Cluster prédit :", predict_cluster(exemple_navire))
+exemple_navire = {'LAT': 29.0, 'LON': -89.0, 'SOG': 10.0, 'COG': 200.0, 'Heading': 200, 'VesselType': 60}
+print("Cluster prédit :", predict_cluster(exemple_navire))
 
 # Merci de valider cette étape avant de passer à l'évaluation des clusters (métriques).
+
+# --- Application du modèle à toute la base ---
+# Prédire le cluster pour chaque navire de la base complète
+df['cluster'] = kmeans.predict(X)
+
+print("\nRépartition des clusters sur toute la base :")
+print(df['cluster'].value_counts())
+
+# (Optionnel) Sauvegarder le DataFrame avec les clusters
+df.to_csv("After_Sort_sans_l&w_vide_clusters.csv", index=False)
+print("Fichier CSV avec clusters sauvegardé sous 'After_Sort_sans_l&w_vide_clusters.csv'.")
+
+# 1. Préparation des données
+# - Extraction des colonnes pertinentes : ['LAT', 'LON', 'SOG', 'COG', 'Heading', 'VesselType']
+# - Encodage de 'VesselType' (catégorielle) en numérique avec LabelEncoder
+# - Normalisation des données avec StandardScaler
+
+# 2. Apprentissage non supervisé
+# - Choix de l'algorithme : KMeans (classique, adapté à ce type de données)
+# - Justification : KMeans regroupe les navires selon la proximité dans l'espace des variables normalisées (schémas de navigation similaires)
+# - Détermination du nombre de clusters : paramètre n_clusters, à ajuster selon les résultats des métriques
+
+# 3. Métriques pour apprentissage non supervisé
+# - Silhouette Score : mesure la cohésion et la séparation des clusters
+# - Calinski-Harabasz Index : rapport entre la dispersion inter-cluster et intra-cluster
+# - Davies-Bouldin Index : plus il est faible, mieux c'est (clusters bien séparés)
+# - Affichage des scores pour discussion et choix du meilleur modèle
+
+# 4. Visualisation sur carte
+# - Utilisation de plotly.express.scatter_mapbox pour afficher les navires sur une carte
+# - Couleur différente pour chaque cluster
+# - Affichage d'un échantillon pour la performance
+
+# 5. Préparation d'un script Python
+# - Fonction predict_cluster pour prédire le cluster d'un nouveau navire à partir de ses caractéristiques
+# - Le modèle et le scaler sont sauvegardés et rechargés, pas de recalcul des clusters à chaque appel
+
+# 6. Application du modèle à toute la base et sauvegarde
+# - Prédiction du cluster pour chaque navire de la base complète
+# - Sauvegarde du résultat dans un nouveau CSV
+
+# 7. Justification des choix (à compléter dans le rapport écrit)
+# - Variables : choix basé sur la pertinence pour décrire la navigation (position, vitesse, direction, type)
+# - Modèle : KMeans pour sa simplicité et son efficacité sur des données normalisées
+# - Métriques : standard pour évaluer la qualité du clustering non supervisé
+
+# 8. Discussion des résultats (à compléter dans le rapport écrit)
+# - Interpréter les scores et la répartition des clusters
+# - Visualiser les comportements typiques ou les anomalies sur la carte
+
+# Analyse des clusters : description des caractéristiques moyennes de chaque cluster
+print("\nCaractéristiques moyennes par cluster (sur toute la base) :")
+print(df.groupby('cluster')[['LAT', 'LON', 'SOG', 'COG', 'Heading', 'VesselType']].mean())
