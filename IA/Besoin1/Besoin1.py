@@ -13,6 +13,9 @@ df = pd.read_csv('Besoin1/After_Sort_sans_l&w_vide.csv')
 colonnes = ['LAT', 'LON', 'SOG', 'COG', 'Heading', 'VesselType']
 df = df[colonnes]
 
+# Suppression des lignes contenant des valeurs manquantes
+df = df.dropna()
+
 # Encodage de la variable catégorielle 'VesselType' si elle est utilisée
 if 'VesselType' in df.columns:
     le = LabelEncoder()
@@ -61,7 +64,7 @@ print(f"Davies-Bouldin Index : {davies_score:.3f}")
 
 # Visualisation sur carte (échantillon pour éviter les bugs de performance)
 try:
-    df_visu = df_sample_cluster.sample(n=5000, random_state=42) if len(df_sample_cluster) > 5000 else df_sample_cluster
+    df_visu = df_sample_cluster.sample(n=4, random_state=42) if len(df_sample_cluster) > 5000 else df_sample_cluster
     fig = px.scatter_mapbox(
         df_visu,
         lat="LAT",
