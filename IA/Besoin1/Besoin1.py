@@ -64,7 +64,7 @@ print(f"Davies-Bouldin Index : {davies_score:.3f}")
 
 # Visualisation sur carte (échantillon pour éviter les bugs de performance)
 try:
-    df_visu = df_sample_cluster.sample(n=4, random_state=42) if len(df_sample_cluster) > 5000 else df_sample_cluster
+    df_visu = df_sample_cluster.sample(n=5000, random_state=42) if len(df_sample_cluster) > 5000 else df_sample_cluster
     fig = px.scatter_mapbox(
         df_visu,
         lat="LAT",
