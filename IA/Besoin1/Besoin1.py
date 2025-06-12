@@ -7,6 +7,7 @@ import plotly.express as px # Pour la visualisation sur carte
 import joblib # Pour la sauvegarde des modèles
 import matplotlib.pyplot as plt # Pour la visualisation des scores
 import numpy as np # Pour la visualisation des scores
+import argparse # Pour la gestion des arguments en ligne de commande
 
 # 1. Chargement et préparation des données
 df = pd.read_csv('Besoin1/After_Sort_sans_l&w_vide.csv')
@@ -109,13 +110,16 @@ print(f"Davies-Bouldin Index : {davies_score:.3f}")
 # 8. Visualisation sur carte (échantillon pour performance)
 try:
     df_visu = df.sample(n=10000) if len(df) > 5000 else df
-    fig = px.scatter_map(
+    import plotly.io as pio
+    pio.renderers.default = "browser"  # Ouvre la carte dans le navigateur par défaut
+    fig = px.scatter_mapbox(
         df_visu,
         lat="LAT",
         lon="LON",
         color="cluster",
         hover_data=["SOG", "COG", "Length", "Width", "Draft", "Heading", "VesselType", "VesselType_original"],
         zoom=4,
+        mapbox_style="carto-positron",
         title="Clustering des navires sur la carte (toute la base)",
     )
     fig.show()
@@ -152,6 +156,33 @@ def predict_cluster(new_data_dict):
     cluster = kmeans.predict(X_new_pca)
     return cluster[0]
 
-# Exemple d'utilisation de la fonction de prédiction
-exemple_navire = {'LAT': 29.0, 'LON': -89.0, 'SOG': 10.0, 'COG': 200.0, 'Length': 100, 'Width': 20, 'Draft': 8, 'Heading': 200, 'VesselType': 60}
-print("Cluster prédit :", predict_cluster(exemple_navire))
+
+# 11. Prédiction du cluster pour un nouveau navire via les arguments en ligne de commande
+argparse = argparse.ArgumentParser(description="Clustering des navires")
+argparse.add_argument('--LON', type=int, help="Données du nouveau navire au format JSON")
+argparse.add_argument('--LAT', type=int, help="Données du nouveau navire au format JSON")
+argparse.add_argument('--SOG', type=float, help="Données du nouveau navire au format JSON")
+argparse.add_argument('--COG', type=float, help="Données du nouveau navire au format JSON")
+argparse.add_argument('--Length', type=int, help="Données du nouveau navire au format JSON")
+argparse.add_argument('--Width', type=int, help="Données du nouveau navire au format JSON")
+argparse.add_argument('--Draft', type=int, help="Données du nouveau navire au format JSON")
+argparse.add_argument('--Heading', type=int, help="Données du nouveau navire au format JSON")
+argparse.add_argument('--VesselType', type=int, help="Données du nouveau navire au format JSON")
+args = argparse.parse_args()
+
+if args.LON is not None and args.LAT is not None and args.SOG is not None and args.COG is not None and args.Length is not None and args.Width is not None and args.Draft is not None and args.Heading is not None and args.VesselType is not None:
+    new_navire = {
+        'LON': args.LON,
+        'LAT': args.LAT,
+        'SOG': args.SOG,
+        'COG': args.COG,
+        'Length': args.Length,
+        'Width': args.Width,
+        'Draft': args.Draft,
+        'Heading': args.Heading,
+        'VesselType': args.VesselType
+    }
+    print("Cluster prédit pour le nouveau navire :", predict_cluster(new_navire))
+
+# Pour lancer la prédiction avec argparse en ligne de commande :
+# 
