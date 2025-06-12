@@ -1,6 +1,6 @@
 library(dplyr)
 library(stringr)# Lecture de la bdd :
-df <- read.csv("C:/Users/Gauth/OneDrive/Documents/GitHub/Projet_Outil_de_l-ing-_S6/Big Data/Data/vessel-total-clean.csv",na.strings = c("", "\\N", "NA"))
+df <- read.csv("C:/Users/Gauth/OneDrive/Documents/GitHub/Projet_Outil_de_l-ing-_S6/projetbigdata_groupe7/vessel-total-clean.csv",na.strings = c("", "\\N", "NA"))
 
 #On supprime les doublons.
 doublons <- duplicated(df[, c("MMSI", "BaseDateTime")])
@@ -19,7 +19,7 @@ df_sans_val_maquantes <- df_sans_doublons %>% filter((!is.na(MMSI))) %>% filter(
 df_sans_SOG_Ab <- df_sans_val_maquantes %>% filter(SOG <= 40)
 
 #  Si LON et LAT hors Golf du Mexique
-df_coo_golf_Mex <- df_sans_SOG_Ab %>% filter(LAT >= 20 & LAT <= 40) %>% filter(LON >= -110 & LON <= -70) # Revoir avec la carte
+df_coo_golf_Mex <- df_sans_SOG_Ab %>% filter(LAT >= 20 & LAT <= 32) %>% filter(LON >= -110 & LON <= -70) # Revoir avec la carte
 
 # ===================================== Supprimer uniquement la valeur: (la remplacer par NA) ===================================== 
 #  COG: la plage de valeur est de 0 à 359,9°. Si la valeur est de 360° ou plus, on la supprime.
@@ -34,11 +34,11 @@ df_fin <- df_valeur_NA %>% mutate(Status = ifelse(is.na(Status),15,Status))
 
 
 # ===================================== Export final =====================================  
-write.csv(df_fin, "C:/Users/Gauth/OneDrive/Documents/GitHub/Projet_Outil_de_l-ing-_S6/Big Data/Data/After_Sort.csv", row.names = FALSE)
+write.csv(df_fin, "C:/Users/Gauth/OneDrive/Documents/GitHub/Projet_Outil_de_l-ing-_S6/projetbigdata_groupe7/Data/After_Sort.csv", row.names = FALSE)
 
 # ===================================== Export final sans val manquante length et width =====================================
-df_fin_sans_lenght_width_vide <- df_sans_doublons %>% filter((!is.na(Length))) %>% filter((!is.na(Width)))
-write.csv(df_fin_sans_lenght_width_vide, "C:/Users/Gauth/OneDrive/Documents/GitHub/Projet_Outil_de_l-ing-_S6/Big Data/Data/After_Sort_sans_l&w_vide.csv", row.names = FALSE)
+df_fin_sans_lenght_width_vide <- df_fin %>% filter((!is.na(Length))) %>% filter((!is.na(Width)))
+write.csv(df_fin_sans_lenght_width_vide, "C:/Users/Gauth/OneDrive/Documents/GitHub/Projet_Outil_de_l-ing-_S6/projetbigdata_groupe7/Data/After_Sort_sans_l&w_vide.csv", row.names = FALSE)
 
 
 
