@@ -119,6 +119,7 @@ def train_horizon(df, horizon, models_dir, max_samples=None):
 def main():
     ap = argparse.ArgumentParser()
 <<<<<<< Updated upstream:IA/train_model.py
+<<<<<<< Updated upstream:IA/train_model.py
     ap.add_argument("--csv", default="db/After_Sort.csv")  # <-- modifié ici
     ap.add_argument("--models-dir", default="models_lstm_fast")
     ap.add_argument("--max-samples", type=int, default=10000)
@@ -129,6 +130,21 @@ def main():
     ap.add_argument("--models-dir", default="models")
     ap.add_argument("--max-samples", type=int, default=10000)
     args = ap.parse_args()
+=======
+    ap.add_argument("--csv", required=True)
+    ap.add_argument("--models-dir", default="models")
+    ap.add_argument("--max-samples", type=int, default=10000)
+    args = ap.parse_args()
+
+    gpus = tf.config.experimental.list_physical_devices('GPU')
+    if gpus:
+        try:
+            for gpu in gpus:
+                tf.config.experimental.set_memory_growth(gpu, True)
+        except RuntimeError as e:
+            print(e)
+    print(f"[INFO] GPU(s) détecté(s): {len(gpus)}")
+>>>>>>> Stashed changes:IA/besoin4/train_model.py
 
     gpus = tf.config.experimental.list_physical_devices('GPU')
     if gpus:
