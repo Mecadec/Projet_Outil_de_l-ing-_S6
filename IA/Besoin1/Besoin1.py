@@ -10,7 +10,7 @@ import numpy as np # Pour la visualisation des scores
 import argparse # Pour la gestion des arguments en ligne de commande
 
 # 1. Chargement et préparation des données
-df = pd.read_csv('Besoin1/After_Sort_sans_l&w_vide.csv')
+df = pd.read_csv('Besoin1/After_Sort.csv')
 colonnes = ['LAT', 'LON', 'SOG', 'COG', 'Length', 'Width', 'Draft', 'Heading', 'VesselType']
 df = df[colonnes]
 df['VesselType_original'] = df['VesselType']  # Sauvegarde la valeur originale pour affichage
