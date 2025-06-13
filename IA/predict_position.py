@@ -48,7 +48,7 @@ def create_sequences_for_prediction(df, seq_len):
         if len(group) < seq_len:
             continue
         for i in range(len(group) - seq_len + 1):
-            seq_data = group[FEATURE_COLS].iloc[i:i+seq_len].values
+            seq_data = group.iloc[i:i+seq_len][FEATURE_COLS].values
             sequences.append(seq_data)
             mmsis.append(mmsi)
             timestamps.append(group["BaseDateTime"].iloc[i+seq_len-1])

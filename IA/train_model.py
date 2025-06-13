@@ -56,7 +56,7 @@ def create_sequences_and_targets(df, horizon_min, seq_len):
             target_time = base_time + pd.Timedelta(minutes=horizon_min)
             pos = times.searchsorted(target_time)
 
-            if pos < len(times) and abs((times.iloc[pos] - base_time) - pd.Timedelta(minutes=horizon_min)) <= pd.Timedelta(minutes=2):
+            if pos < len(times) and abs((times.iloc[pos] - base_time) - pd.Timedelta(minutes=horizon_min)) <= pd.Timedelta(minutes=10):
                 seqs.append(vals[i:i + seq_len])
                 targs.append([lat_vals[pos], lon_vals[pos]])
                 mmsis.append(mmsi)
@@ -112,17 +112,34 @@ def train_horizon(df, horizon, models_dir, max_samples=None):
     rmse = np.sqrt(mean_squared_error(y_test, preds))
     print(f"Résultat {horizon}min: MAE={mae:.2f}, RMSE={rmse:.2f} mètres")
 
-    model.save(models_dir / f"lstm_{horizon}min_fast.h5")
-    joblib.dump(s_std, models_dir / f"std_{horizon}min_fast.pkl")
-    joblib.dump(s_mm, models_dir / f"mm_{horizon}min_fast.pkl")
+    model.save(models_dir / f"lstm_{horizon}min.h5")
+    joblib.dump(s_std, models_dir / f"std_{horizon}min.pkl")
+    joblib.dump(s_mm, models_dir / f"mm_{horizon}min.pkl")
 
 def main():
     ap = argparse.ArgumentParser()
+<<<<<<< Updated upstream:IA/train_model.py
     ap.add_argument("--csv", default="db/After_Sort.csv")  # <-- modifié ici
     ap.add_argument("--models-dir", default="models_lstm_fast")
     ap.add_argument("--max-samples", type=int, default=10000)
     args = ap.parse_args()
 
+=======
+    ap.add_argument("--csv", required=True)
+    ap.add_argument("--models-dir", default="models")
+    ap.add_argument("--max-samples", type=int, default=10000)
+    args = ap.parse_args()
+
+    gpus = tf.config.experimental.list_physical_devices('GPU')
+    if gpus:
+        try:
+            for gpu in gpus:
+                tf.config.experimental.set_memory_growth(gpu, True)
+        except RuntimeError as e:
+            print(e)
+    print(f"[INFO] GPU(s) détecté(s): {len(gpus)}")
+
+>>>>>>> Stashed changes:IA/besoin4/train_model.py
     df = pd.read_csv(args.csv, low_memory=False)
     df["BaseDateTime"] = pd.to_datetime(df["BaseDateTime"], errors="coerce")
     df["MMSI"] = pd.to_numeric(df["MMSI"], errors="coerce")
