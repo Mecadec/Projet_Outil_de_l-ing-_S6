@@ -20,71 +20,71 @@
         </ul>
     </nav>
     <main class="main-content">
-    <div class="container d-flex justify-content-center align-items-center" style="min-height:80vh;">
-        <div class="card shadow p-4" style="max-width: 900px; width:80%; border-radius: 1.2rem;">
-            <h1 class="mb-4 text-center">Ajout d'un point de donnée</h1>
+        <h1 class="main-title">Ajout d'un point de donnée</h1>
+        <div class="form-container">
+            <div class="common-card">
             <form class="data-form">
-                <div class="mb-3 row align-items-center">
+                <div class="mb-1 row align-items-center">
                     <label class="col-md-4 col-form-label">MMSI</label>
                     <div class="col-md-8">
                         <input type="text" name="mmsi" class="form-control" required>
                     </div>
                 </div>
-                <div class="mb-3 row align-items-center">
+                <div class="mb-1 row align-items-center">
                     <label class="col-md-4 col-form-label">Date</label>
                     <div class="col-md-8">
                         <input type="datetime-local" name="date" class="form-control" required>
                     </div>
                 </div>
-                <div class="mb-3 row align-items-center">
+                <div class="mb-1 row align-items-center">
                     <label class="col-md-4 col-form-label">Latitude</label>
                     <div class="col-md-8">
                         <input type="number" name="latitude" step="any" class="form-control" required>
                     </div>
                 </div>
-                <div class="mb-3 row align-items-center">
+                <div class="mb-1 row align-items-center">
                     <label class="col-md-4 col-form-label">Longitude</label>
                     <div class="col-md-8">
                         <input type="number" name="longitude" step="any" class="form-control" required>
                     </div>
                 </div>
-                <div class="mb-3 row align-items-center">
+                <div class="mb-1 row align-items-center">
                     <label class="col-md-4 col-form-label">COG</label>
                     <div class="col-md-8">
                         <input type="number" name="cog" step="any" class="form-control">
                     </div>
                 </div>
-                <div class="mb-3 row align-items-center">
+                <div class="mb-1 row align-items-center">
                     <label class="col-md-4 col-form-label">SOG</label>
                     <div class="col-md-8">
                         <input type="number" name="sog" step="any" class="form-control">
                     </div>
                 </div>
-                <div class="mb-3 row align-items-center">
+                <div class="mb-1 row align-items-center">
                     <label class="col-md-4 col-form-label">Nom du bateaux</label>
                     <div class="col-md-8">
                         <input type="text" name="nom_bateau" class="form-control">
                     </div>
                 </div>
-                <div class="mb-3 row align-items-center">
+                <div class="mb-1 row align-items-center">
                     <label class="col-md-4 col-form-label">Etats</label>
                     <div class="col-md-8">
                         <input type="text" name="etats" class="form-control">
                     </div>
                 </div>
-                <div class="mb-3 row align-items-center">
+                <div class="mb-1 row align-items-center">
                     <label class="col-md-4 col-form-label">Largeur</label>
                     <div class="col-md-8">
                         <input type="number" name="largeur" step="any" class="form-control">
                     </div>
                 </div>
-                <div class="mb-3 row align-items-center">
+                <div class="mb-1 row align-items-center">
                     <label class="col-md-4 col-form-label">Longueur</label>
                     <div class="col-md-8">
                         <input type="number" name="longueur" step="any" class="form-control">
                     </div>
                 </div>
-                <div class="mb-4 row align-items-center">
+                <div class="mb-3 row align-items-center">
                     <label class="col-md-4 col-form-label">Tirant d’eau</label>
                     <div class="col-md-8">
                         <input type="number" name="tirant_eau" step="any" class="form-control">
@@ -94,8 +94,8 @@
                     <button type="submit" class="btn btn-primary px-5 py-2 rounded-pill fw-bold">Ajouter</button>
                 </div>
             </form>
+            </div>
         </div>
-    </div>
-</main>
+    </main>
 </body>
 </html>

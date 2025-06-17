@@ -24,12 +24,11 @@
     </nav>
     <main class="main-content">
         <h1 class="main-title">Visualisation des bateaux</h1>
-        <div class="container-fluid">
+        <div class="common-card">
             <div class="row justify-content-center">
                 <!-- Card tableau à gauche -->
-                <div class="col-12 col-lg-6">
-                    <div class="card shadow p-4 h-100 visualisation-card">
-                        <h2 class="h4 mb-4 text-center">Tableau des bateaux</h2>
+                <div class="col-12">
+                    <h2 class="h4 mb-4 text-center">Tableau des bateaux</h2>
                         <div class="table-responsive">
                             <table class="table table-striped align-middle" id="boats-table">
                                 <thead>
@@ -50,17 +49,16 @@
                     </div>
                 </div>
                 <!-- Card carte à droite -->
-                <div class="col-12 col-lg-5">
-                    <div class="card shadow p-4 h-100 visualisation-card">
+                <div class="col-12 col-lg-6">
+                    <div class="common-card">
                         <h2 class="h4 mb-4 text-center">Carte interactive</h2>
                         <div id="map" style="width:100%; height:400px;"></div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="d-flex justify-content-center ">
-            <a id="run-clustering" class="btn btn-primary" href="clusters.html">Lancer le clustering</a>
-        </div>
+            <div class="d-flex justify-content-center mt-4">
+                <a id="run-clustering" class="btn btn-primary px-5 py-2 rounded-pill fw-bold" href="clusters.html">Lancer le clustering</a>
+            </div>
     </main>
 </body>
 </html>

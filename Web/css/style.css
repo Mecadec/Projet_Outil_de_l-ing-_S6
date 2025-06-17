@@ -79,12 +79,24 @@ body {
     color: #FFBE0B;
 }
 .main-content {
-    padding: 2rem;
-    min-height: 70vh;
+    padding: 2rem 0;
+    flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Conteneur de formulaire */
+.form-container {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 1rem 2rem;
+    box-sizing: border-box;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .home-section {
@@ -93,19 +105,22 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    flex: 1 0 auto;
+    flex: 1;
+    padding: 2rem 0;
 }
 
 .home-layout {
     display: flex;
     align-items: center;
     gap: 2rem;
-    background: rgba(255,255,255,0.8);
+    background: white;
     border-radius: 15px;
     box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-    padding: 2rem;
+    padding: 2.5rem;
+    width: 100%;
     max-width: 1000px;
-    margin: auto;
+    margin: 0 auto;
+    box-sizing: border-box;
 }
 @media (max-width: 900px) {
     .home-layout {
