@@ -336,3 +336,51 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+
+const map = L.map('map').setView([48, -4], 5);                 // centre par défaut
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            { attribution:'© OSM' }).addTo(map);
+
+document.getElementById('predictForm').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const body = {
+    mmsi:   +predMmsi.value,
+    lat:    +predLat.value,
+    lon:    +predLon.value,
+    speed:  +predSog.value,
+    heading:+predCog.value
+  };
+
+  try {
+    const res  = await fetch('/php/predict.php', {
+                  method:'POST',
+                  headers:{'Content-Type':'application/json'},
+                  body: JSON.stringify(body)
+                });
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error || res.statusText);
+
+    // Nettoyer ancienne prédiction
+    map.eachLayer(l=>{ if (l.options && l.options.pred) map.removeLayer(l); });
+
+    // Marqueur actuel
+    const cur = L.marker(json.now, {pred:true}).addTo(map)
+                 .bindPopup(`Navire ${json.mmsi}<br>Position actuelle`).openPopup();
+    map.setView(json.now, 9);
+
+    // Segments et marqueurs futurs
+    json.predictions.forEach(p=>{
+      const line = L.polyline([json.now, [p.lat, p.lon]],
+                    {color:'red',weight:2, dashArray:'4', pred:true})
+                    .addTo(map)
+                    .bindTooltip(`+${p.minutes} min`);
+      const tri  = L.marker([p.lat, p.lon],
+                    {icon: L.divIcon({className:'',html:'▲', iconSize:[12,12]}), pred:true})
+                    .addTo(map);
+    });
+
+  } catch(err){
+     alert('Erreur prédiction: '+err.message);
+  }
+});

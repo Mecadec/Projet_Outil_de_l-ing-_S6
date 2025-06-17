@@ -327,3 +327,29 @@
 [Tue Jun 17 07:25:54.418426 2025] [php7:notice] [pid 19775] [client 185.185.119.35:50363] Liaison du param\xc3\xa8tre :Draft = 4, referer: http://etu0118.projets.isen-ouest.info/
 [Tue Jun 17 07:25:54.418431 2025] [php7:notice] [pid 19775] [client 185.185.119.35:50363] Ex\xc3\xa9cution de la requ\xc3\xaate..., referer: http://etu0118.projets.isen-ouest.info/
 [Tue Jun 17 07:25:54.418735 2025] [php7:notice] [pid 19775] [client 185.185.119.35:50363] Erreur PDO dans add_point.php: SQLSTATE[HY000]: General error: 1364 Field 'ID' doesn't have a default value, referer: http://etu0118.projets.isen-ouest.info/
+[Tue Jun 17 09:11:38.797378 2025] [php7:notice] [pid 24736] [client 185.185.119.35:62859] CWD=/var/www/etu0118/php, referer: http://etu0118.projets.isen-ouest.info/
+[Tue Jun 17 09:11:38.797432 2025] [php7:notice] [pid 24736] [client 185.185.119.35:62859] __DIR__=/var/www/etu0118/php, referer: http://etu0118.projets.isen-ouest.info/
+[Tue Jun 17 09:26:28.335798 2025] [php7:notice] [pid 6579] [client 185.185.119.35:64597] CWD=/var/www/etu0118/php, referer: http://etu0118.projets.isen-ouest.info/
+[Tue Jun 17 09:26:28.335851 2025] [php7:notice] [pid 6579] [client 185.185.119.35:64597] __DIR__=/var/www/etu0118/php, referer: http://etu0118.projets.isen-ouest.info/
+[Tue Jun 17 09:34:51.051487 2025] [php7:notice] [pid 11753] [client 185.185.119.35:65488] CWD=/var/www/etu0118/php, referer: http://etu0118.projets.isen-ouest.info/
+[Tue Jun 17 09:34:51.051574 2025] [php7:notice] [pid 11753] [client 185.185.119.35:65488] __DIR__=/var/www/etu0118/php, referer: http://etu0118.projets.isen-ouest.info/
+[Tue Jun 17 09:34:56.993418 2025] [php7:notice] [pid 11791] [client 185.185.119.35:65496] CWD=/var/www/etu0118/php, referer: http://etu0118.projets.isen-ouest.info/
+[Tue Jun 17 09:34:56.993491 2025] [php7:notice] [pid 11791] [client 185.185.119.35:65496] __DIR__=/var/www/etu0118/php, referer: http://etu0118.projets.isen-ouest.info/
+[Tue Jun 17 09:41:05.014874 2025] [php7:notice] [pid 21041] [client 185.185.119.35:49830] CWD=/var/www/etu0118/php, referer: http://etu0118.projets.isen-ouest.info/
+[Tue Jun 17 09:41:05.014961 2025] [php7:notice] [pid 21041] [client 185.185.119.35:49830] __DIR__=/var/www/etu0118/php, referer: http://etu0118.projets.isen-ouest.info/
+[Tue Jun 17 09:44:09.974439 2025] [php7:notice] [pid 21325] [client 185.185.119.35:50181] CWD=/var/www/etu0118/php, referer: http://etu0118.projets.isen-ouest.info/
+[Tue Jun 17 09:44:09.974489 2025] [php7:notice] [pid 21325] [client 185.185.119.35:50181] __DIR__=/var/www/etu0118/php, referer: http://etu0118.projets.isen-ouest.info/
+[Tue Jun 17 09:44:58.993644 2025] [php7:notice] [pid 21486] [client 185.185.119.35:50285] CWD=/var/www/etu0118/php, referer: http://etu0118.projets.isen-ouest.info/
+[Tue Jun 17 09:44:58.993690 2025] [php7:notice] [pid 21486] [client 185.185.119.35:50285] __DIR__=/var/www/etu0118/php, referer: http://etu0118.projets.isen-ouest.info/
+[Tue Jun 17 09:45:12.621439 2025] [php7:notice] [pid 25672] [client 185.185.119.35:50306] CWD=/var/www/etu0118/php, referer: http://etu0118.projets.isen-ouest.info/
+[Tue Jun 17 09:45:12.621498 2025] [php7:notice] [pid 25672] [client 185.185.119.35:50306] __DIR__=/var/www/etu0118/php, referer: http://etu0118.projets.isen-ouest.info/
+[Tue Jun 17 11:43:16.316993 2025] [php7:notice] [pid 30071] [client 185.185.119.35:53153] CWD=/var/www/etu0118/php, referer: http://etu0118.projets.isen-ouest.info/
+[Tue Jun 17 11:43:16.317048 2025] [php7:notice] [pid 30071] [client 185.185.119.35:53153] __DIR__=/var/www/etu0118/php, referer: http://etu0118.projets.isen-ouest.info/
+[Tue Jun 17 11:49:45.988384 2025] [php7:notice] [pid 3551] [client 185.185.119.35:60264] CWD=/var/www/etu0118/php, referer: http://etu0118.projets.isen-ouest.info/
+[Tue Jun 17 11:49:45.988451 2025] [php7:notice] [pid 3551] [client 185.185.119.35:60264] __DIR__=/var/www/etu0118/php, referer: http://etu0118.projets.isen-ouest.info/
+[Tue Jun 17 11:57:00.023391 2025] [php7:notice] [pid 13532] [client 185.185.119.35:61116] CWD=/var/www/etu0118/php, referer: http://etu0118.projets.isen-ouest.info/
+[Tue Jun 17 11:57:00.023883 2025] [php7:notice] [pid 13532] [client 185.185.119.35:61116] __DIR__=/var/www/etu0118/php, referer: http://etu0118.projets.isen-ouest.info/
+[Tue Jun 17 11:59:43.463566 2025] [php7:notice] [pid 14021] [client 185.185.119.35:61466] CWD=/var/www/etu0118/php, referer: http://etu0118.projets.isen-ouest.info/
+[Tue Jun 17 11:59:43.463610 2025] [php7:notice] [pid 14021] [client 185.185.119.35:61466] __DIR__=/var/www/etu0118/php, referer: http://etu0118.projets.isen-ouest.info/
+[Tue Jun 17 12:01:15.010469 2025] [php7:notice] [pid 18373] [client 185.185.119.35:61656] CWD=/var/www/etu0118/php, referer: http://etu0118.projets.isen-ouest.info/
+[Tue Jun 17 12:01:15.010549 2025] [php7:notice] [pid 18373] [client 185.185.119.35:61656] __DIR__=/var/www/etu0118/php, referer: http://etu0118.projets.isen-ouest.info/
