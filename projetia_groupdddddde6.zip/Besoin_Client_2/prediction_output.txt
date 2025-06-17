@@ -1,0 +1,107 @@
+=== DÉBUT DU SCRIPT ===
+
+=== PRÉDICTION AVEC PIPELINE ===
+
+Graine aléatoire utilisée: 1749814715
+
+Graine aléatoire utilisée: 4715
+
+1. Chargement du modèle...
+   Type du modèle chargé: <class 'dict'>
+   Type du modèle interne: <class 'sklearn.pipeline.Pipeline'>
+
+2. Inspection du pipeline:
+   1. prep: ColumnTransformer
+      Transformers:
+      - num: Pipeline sur les colonnes: ['SOG', 'COG', 'Heading', 'Length', 'Width', 'Draft', 'Latitude', 'Longitude', 'log_SOG', 'lw_ratio']
+      Caractéristiques de sortie: 10 features
+      Exemple de features: ['num__SOG' 'num__COG' 'num__Heading' 'num__Length' 'num__Width']...
+   2. cat: CatBoostClassifier
+
+3. Chargement des données...
+   100 lignes chargées
+
+4. Nettoyage des données...
+   74 lignes après nettoyage
+
+5. Sélection des navires pour la prédiction...
+
+   Colonnes attendues par le modèle: SOG, COG, Heading, Length, Width, Draft, Latitude, Longitude, log_SOG, lw_ratio
+   ATTENTION: Colonnes manquantes: log_SOG, lw_ratio
+   Création de log_SOG = log(SOG + 1)
+   Création de lw_ratio = Length / (Width + 1e-6)
+   Colonnes utilisées pour la prédiction: SOG, COG, Heading, Length, Width, Draft, Latitude, Longitude, log_SOG, lw_ratio
+   Forme des données d'entrée: (5, 10)
+
+   Aperçu des données d'entrée:
+   1. SOG: 0.00
+   2. COG: 128.00
+   3. Heading: 90.00
+   4. Length: 304.00
+   5. Width: 40.00
+   6. Draft: 12.90
+   7. Latitude: 29.61
+   8. Longitude: -95.01
+   9. log_SOG: 0.00
+   10. lw_ratio: 7.60
+
+6. Données pour la prédiction:
+
+   Navire 1:
+   MMSI: 636022111
+   Nom: MSC KALAMATA VII
+   Type réel: 71
+   Caractéristiques: SOG=0.0, COG=128.0, Longueur=304, Largeur=40, Tirant=12.9
+
+   Navire 2:
+   MMSI: 249086000
+   Nom: SCOT BREMEN
+   Type réel: 80
+   Caractéristiques: SOG=0.0, COG=228.2, Longueur=116, Largeur=18, Tirant=7.4
+
+   Navire 3:
+   MMSI: 636017828
+   Nom: STOLT KIRI
+   Type réel: 80
+   Caractéristiques: SOG=14.0, COG=175.4, Longueur=145, Largeur=24, Tirant=9.6
+
+   Navire 4:
+   MMSI: 636016396
+   Nom: NAVIGATOR ATLAS
+   Type réel: 80
+   Caractéristiques: SOG=0.0, COG=100.6, Longueur=159, Largeur=24, Tirant=9.4
+
+   Navire 5:
+   MMSI: 354543000
+   Nom: BETTY K VI
+   Type réel: 70
+   Caractéristiques: SOG=0.0, COG=3.4, Longueur=61, Largeur=12, Tirant=3.9
+
+7. Prédictions en cours...
+   Forme des données d'entrée: (5, 10)
+   Types de données d'entrée:
+SOG          float64
+COG          float64
+Heading        int64
+Length         int64
+Width          int64
+Draft        float64
+Latitude     float64
+Longitude    float64
+log_SOG      float64
+lw_ratio     float64
+dtype: object
+   Début de la prédiction...
+   Prédiction terminée
+   Calcul des probabilités...
+   Probabilités des classes calculées
+
+8. Résultats des prédictions:
+   ------------------------------------------------------------------------------------------
+   MMSI            Nom                  Type réel  Type prédit  Confiance  Caractéristiques
+   ------------------------------------------------------------------------------------------
+   636022111       MSC KALAMATA VII     71         71           100.0%     SOG=0.0, L=304.0, l=40.0
+   249086000       SCOT BREMEN          80         80           99.3%      SOG=0.0, L=116.0, l=18.0
+   636017828       STOLT KIRI           80         80           99.9%      SOG=14.0, L=145.0, l=24.0
+   636016396       NAVIGATOR ATLAS      80         80           100.0%     SOG=0.0, L=159.0, l=24.0
+   354543000       BETTY K VI           70         60           50.9%      SOG=0.0, L=61.0, l=12.0

@@ -40,7 +40,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: #fff;
+    background: rgba(255,255,255,0);
     padding: 0.5rem 2rem;
 }
 
@@ -129,7 +129,7 @@ body {
         padding: 1rem;
     }
 }
-.home-section h1 {
+.main-title h1 {
     color: #22223B;
     margin-bottom: 1rem;
     text-align: center;

@@ -11,7 +11,9 @@
 </head>
 <body>
     <nav class="navbar">
-        <img src="../assets/LOGO__CARGOOO.png" alt="Logo" class="logo">
+        <a href="index.html">
+            <img src="../assets/LOGO__CARGOOO.png" alt="Logo" class="logo">
+        </a>
         <ul class="nav-links">
             <li><a href="index.html">Accueil</a></li>
             <li><a href="visualisation.html">Visualisation</a></li>
@@ -20,13 +22,14 @@
         </ul>
     </nav>
     <main class="main-content">
-        <h1 class="main-title">Prédiction</h1>
-        <div class="form-container">
-            <div class="common-card">
-                <form class="data-form">
-                    <div class="mb-1 row align-items-center">
-                        <label class="col-md-4 col-form-label">MMSI</label>
-                        <div class="col-md-8">
+        <section class="home-section">
+            <h1 class="main-title">Prédiction</h1>
+            <div class="form-container">
+                <div class="common-card">
+                    <form class="data-form">
+                        <div class="mb-1 row align-items-center">
+                            <label class="col-md-4 col-form-label">MMSI</label>
+                            <div class="col-md-8">
                             <input type="text" name="mmsi" class="form-control" required>
                         </div>
                     </div>
@@ -96,6 +99,7 @@
                 </form>
             </div>
         </div>
+    </section>
     </main>
 </body>
 </html>
