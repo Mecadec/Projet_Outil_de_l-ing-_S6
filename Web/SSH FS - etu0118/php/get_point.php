@@ -18,6 +18,17 @@ $dbname = 'etu0118';
 $user = 'etu0118';
 $pass = 'jonnqeuk';
 
+
+// ------------------------------------------------------------------
+// Limite de lignes renvoyées   (GET ?limit=xx   ou valeur par défaut)
+// ------------------------------------------------------------------
+$limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 20;
+if ($limit < 1 || $limit > 1000) {      // borne pour éviter l'abus
+    $limit = 20;
+}
+
+
+
 /**
  * Envoie une réponse JSON standardisée
  */
@@ -57,10 +68,17 @@ try {
         sendJsonResponse(false, null, 'Aucune colonne valide trouvée dans la table Message', 500);
     }
 
-    // Construire et exécuter la requête
-    $sql = 'SELECT ' . implode(', ', $validColumns) . ' FROM Message ORDER BY ID DESC';
-    $stmt = $pdo->query($sql);
-    $points = $stmt->fetchAll();
+
+    $sql = "SELECT " . implode(',', $validColumns) . "
+    FROM Message
+    ORDER BY ID DESC
+    LIMIT :lim";
+
+$stmt = $pdo->prepare($sql);
+$stmt->bindValue(':lim', $limit, PDO::PARAM_INT);
+$stmt->execute();
+$points = $stmt->fetchAll();
+
 
     // Formater les données si nécessaire (par exemple, conversion de types)
     $formattedPoints = array_map(function($point) {

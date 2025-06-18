@@ -3,170 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion des Navires AIS</title>
+    <title>Accueil - Outil d'Ingénierie S6</title>
+    <link href="https://fonts.googleapis.com/css2?family=Belanosima:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script defer src="../js/main.js"></script>
+    <script type="module" src="../js/utils.js"></script>   <!-- pas obligatoire si déjà importé -->
+<script type="module" src="../js/api.js"></script>
+<script type="module" src="../js/ships.js"></script>
+<script type="module" src="../js/points.js"></script>
+<script type="module" src="../js/main.js"></script>
 
 </head>
 <body>
-
-    <h2>Prédire le type de navire</h2>
-<form id="vesselTypeForm" class="form-container">
-  <div class="form-row">
-    <input id="vtSog"  type="number" step="0.1" placeholder="SOG (kn)" required>
-    <input id="vtCog"  type="number" step="0.1" placeholder="COG (°)"  required>
-    <input id="vtLen"  type="number" step="0.1" placeholder="Longueur (m)" required>
-    <input id="vtWid"  type="number" step="0.1" placeholder="Largeur (m)"  required>
-    <input id="vtDraft"type="number" step="0.1" placeholder="Tirant (m)"   required>
-  </div>
-  <div class="form-row">
-    <input id="vtLat"  type="number" step="0.0001" placeholder="Latitude"  required>
-    <input id="vtLon"  type="number" step="0.0001" placeholder="Longitude" required>
-    <button class="btn">Prédire</button>
-  </div>
-</form>
-
-<div id="vesselTypeResult"></div>
-
-
-    <form id="predictForm">
-        <input id="predMmsi"  placeholder="MMSI"  required />
-        <input id="predLat"   placeholder="Lat"   type="number" step="0.0001" required />
-        <input id="predLon"   placeholder="Lon"   type="number" step="0.0001" required />
-        <input id="predSog"   placeholder="SOG (kn)" type="number" step="0.1" required />
-        <input id="predCog"   placeholder="COG (°)"  type="number" step="0.1" required />
-        <button class="btn">Prédire</button>
-      </form>
-      <div id="map" style="height:500px;margin-top:20px;"></div>
-      
-    <div class="container">
-        <h1>Gestion des Navires AIS</h1>
+    <nav class="navbar">
+        <a href="index.html">
+            <img src="../assets/LOGO__CARGOOO.png" alt="Logo" class="logo">
+        </a>
+        <ul class="nav-links">
+            <li><a href="index.html">Accueil</a></li>
+            <li><a href="visualisation.html">Visualisation</a></li>
+            <li><a href="ajout.html">Ajout Données</a></li>
+            <li><a href="prediction.html">Prédiction</a></li>
+        </ul>
+    </nav>
+    <main class="main-content">
+        <section class="home-section">
+            <h1 class="main-title" style="color: rgba(0,0,0,0.0); ">Accueil</h1>
+            <div class="home-layout">
+                <img src="../assets/Ship_image.jpeg" alt="Bateau" class="illustration">
+                <div class="description">
+                    <h2>Notre projet</h2>
+                    <p>
+                        CARGOOO!© analyse les données AIS des navires pour visualiser leurs trajectoires, prédire leurs types et leurs comportements grâce à l'intelligence artificielle.<br>
+                        L'intelligence artificielle au service de la navigation : visualisez, analysez, prédisez.
+                    </p>
+                    <a href="visualisation.html" class="btn btn-primary px-4 py-2 rounded-pill d-block">C'est parti!</a>
+                </div>
+            </div>
+        </section>
         
-        <!-- Formulaire d'ajout -->
-        <div class="form-container">
-            <h2>Ajouter un nouveau navire</h2>
-            <form id="addShipForm">
-                <div class="form-group">
-                    <label for="mmsi">MMSI*</label>
-                    <input type="text" id="mmsi" name="MMSI" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="vesselName">Nom du navire*</label>
-                    <input type="text" id="vesselName" name="VesselName" required>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="imo">IMO*</label>
-                        <input type="text" id="imo" name="IMO" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="callsign">Indicatif d'appel*</label>
-                        <input type="text" id="callsign" name="Callsign" required>
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="length">Longueur (m)*</label>
-                        <input type="number" step="0.1" id="length" name="Length" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="width">Largeur (m)*</label>
-                        <input type="number" step="0.1" id="width" name="Width" required>
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="transceiverClass">Classe d'émetteur*</label>
-                        <select id="transceiverClass" name="TransceiverClass" required>
-                            <option value="A">A</option>
-                            <option value="B">B</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <button type="submit" class="btn">Ajouter le navire</button>
-            </form>
-        </div>
-
-        <!-- Formulaire d'ajout de point de donnée -->
-        <div class="form-container">
-            <h2>Ajouter un point de donnée</h2>
-            <form id="addPointForm">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="pointId">ID</label>
-                        <input type="text" id="pointId" name="ID">
-                    </div>
-                    <div class="form-group">
-                        <label for="pointMmsi">MMSI*</label>
-                        <input type="text" id="pointMmsi" name="MMSI" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="pointBaseDateTime">Date/Heure*</label>
-                        <input type="datetime-local" id="pointBaseDateTime" name="BaseDateTime" required>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="pointLat">Latitude*</label>
-                        <input type="number" step="0.000001" id="pointLat" name="LAT" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="pointLon">Longitude*</label>
-                        <input type="number" step="0.000001" id="pointLon" name="LON" required>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="pointSog">SOG*</label>
-                        <input type="number" step="0.01" id="pointSog" name="SOG" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="pointCog">COG*</label>
-                        <input type="number" step="0.01" id="pointCog" name="COG" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="pointHeading">Heading*</label>
-                        <input type="number" step="0.01" id="pointHeading" name="HEADING" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="pointStatus">Status*</label>
-                        <input type="number" id="pointStatus" name="Status" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="pointDraft">Draft*</label>
-                        <input type="number" step="0.01" id="pointDraft" name="Draft" required>
-                    </div>
-                </div>
-                <button type="submit" class="btn">Ajouter le point</button>
-            </form>
-        </div>
-
-        <!-- Liste des navires -->
-        <div class="ships-container">
-            <h2>Liste des navires</h2>
-            <div id="shipsList">
-                <!-- La liste des navires sera chargée ici par JavaScript -->
-                <p>Chargement des navires...</p>
-            </div>
-        </div>
-        <!-- Liste des points de données -->
-        <div class="points-container">
-            <h2>Liste des points de données</h2>
-            <div id="pointsList">
-                <!-- La liste des points sera chargée ici par JavaScript -->
-                <p>Chargement des points de données...</p>
-            </div>
-        </div>
-    </div>
-    
-    <script src="js/app.js"></script>
+    </main>
 </body>
 </html>
